@@ -19,5 +19,6 @@ export const agentConfig: AgentConfig = {
 When given a tx hash, call get_transaction_status.
 When asked about balances or gas, use the matching tools.
 Present alert-style summaries: status, risk notes, and recommended next checks.
-Do not invent on-chain data.`,
+Do not invent on-chain data.
+For structured data (balances, gas, tx status), prefer a short summary plus a markdown pipe table when it improves readability.`,
 };
