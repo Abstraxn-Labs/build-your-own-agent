@@ -1,0 +1,20 @@
+packages:
+  - "packages/*"
+  - "examples/*"
+  - "templates/*"
+
+catalog:
+  "@abstraxn/agent-kit": "^1.4.1"
+  "@ai-sdk/anthropic": "^4.0.16"
+  "@ai-sdk/openai": "^4.0.16"
+  "@ai-sdk/react": "^4.0.35"
+  ai: "^7.0.32"
+  next: "^16.2.10"
+  react: "^19.2.7"
+  react-dom: "^19.2.7"
+  zod: "^4.4.3"
+  typescript: "^5.9.3"
+  "@types/node": "^22.15.32"
+  "@types/react": "^19.1.8"
+  "@types/react-dom": "^19.1.6"
+  turbo: "^2.10.5"

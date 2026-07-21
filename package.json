@@ -1,0 +1,25 @@
+{
+  "name": "abstraxn-agent-examples",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Build your Agent with Abstraxn — example agents monorepo",
+  "packageManager": "pnpm@10.0.0",
+  "scripts": {
+    "build:packages": "node scripts/build-packages.mjs",
+    "build": "pnpm run build:packages && turbo run build",
+    "dev": "pnpm run build:packages && turbo run dev --parallel",
+    "lint": "turbo run lint",
+    "typecheck": "pnpm run build:packages && turbo run typecheck",
+    "clean": "turbo run clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "turbo": "catalog:",
+    "typescript": "catalog:"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["sharp"]
+  }
+}

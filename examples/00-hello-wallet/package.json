@@ -1,0 +1,32 @@
+{
+  "name": "@abstraxn-examples/hello-wallet",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start --port 3000",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "clean": "rm -rf .next"
+  },
+  "dependencies": {
+    "@abstraxn-examples/core": "workspace:*",
+    "@abstraxn-examples/llm": "workspace:*",
+    "@abstraxn-examples/mcp": "workspace:*",
+    "@abstraxn-examples/utils": "workspace:*",
+    "@abstraxn-examples/wallet": "workspace:*",
+    "@ai-sdk/react": "catalog:",
+    "ai": "catalog:",
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "typescript": "catalog:"
+  }
+}
