@@ -25,6 +25,15 @@ export const TOOL_SETS = {
     'get_transaction_status',
     'token_chart',
   ] as const,
+  coinbaseTrading: [
+    'coinbase_get_price',
+    'coinbase_get_balance',
+    'coinbase_place_order',
+    'coinbase_get_order_status',
+    'coinbase_cancel_order',
+    'coinbase_list_recent_orders',
+    'get_wallet_address',
+  ] as const,
   txMonitoring: [
     'get_transaction_status',
     'get_balance',
