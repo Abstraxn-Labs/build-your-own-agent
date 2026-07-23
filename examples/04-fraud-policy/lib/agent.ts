@@ -21,5 +21,6 @@ export const agentConfig: AgentConfig = {
 Explain spend policies and interaction blacklists before any transfer attempt.
 If a tool is blocked by policy, explain WHY (limit exceeded, blacklisted recipient).
 Frame this as policy-enforced monitoring — not a complete fraud/AML suite.
-Suggest safer recipients and lower amounts when blocked.`,
+Suggest safer recipients and lower amounts when blocked.
+For structured data (policy limits, blocked actions), prefer a short summary plus a markdown pipe table when it improves readability.`,
 };
