@@ -18,15 +18,12 @@ Open-source examples for building AI agents with [`@abstraxn/agent-kit`](https:/
 | I want to… | Go here | Run |
 |------------|---------|-----|
 | **Web crawling / research (Firecrawl)** | [`examples/01-firecrawl-research`](examples/01-firecrawl-research) | `pnpm --filter @abstraxn-examples/firecrawl-research dev` |
-| Trading / swap quotes | [`examples/02-trading-agent`](examples/02-trading-agent) | `pnpm --filter @abstraxn-examples/trading-agent dev` |
-| Transaction monitoring | [`examples/03-tx-monitoring`](examples/03-tx-monitoring) | `pnpm --filter @abstraxn-examples/tx-monitoring dev` |
-| Fraud / policy guardrails | [`examples/04-fraud-policy`](examples/04-fraud-policy) | `pnpm --filter @abstraxn-examples/fraud-policy dev` |
 | Verify setup (smoke test) | [`examples/00-hello-wallet`](examples/00-hello-wallet) | `pnpm --filter @abstraxn-examples/hello-wallet dev` |
 
 **Minimal steps (Firecrawl example):**
 
 ```bash
-git clone https://github.com/abstraxn/abstraxn-agent-examples.git
+git clone https://github.com/Abstraxn-Labs/abstraxn-agent-examples.git
 cd abstraxn-agent-examples
 pnpm install
 cp .env.example .env
@@ -42,7 +39,7 @@ Then open [`examples/01-firecrawl-research/lib/agent.ts`](examples/01-firecrawl-
 
 | Piece | Do you need it for crawling only? | Why it exists |
 |-------|----------------------------------|---------------|
-| `examples/02-trading-agent`, `03-*`, `04-*` | **No** — ignore them | Other developers find their use case in one place |
+| `examples/00-hello-wallet` | **No** — ignore it | Smoke-test example other developers use to verify setup |
 | `packages/core`, `mcp`, `llm`, `utils` | **Yes** (via dependencies) | Shared glue so each example stays ~50 lines instead of 500 |
 | `templates/next-agent` | Only if you add a new use case | Copy-paste scaffold for contributors |
 
@@ -59,17 +56,14 @@ Use the full repo as-is. Run only the example you care about with `pnpm --filter
 
 ### Option B — Fork and delete (cleanest for one use case)
 
-Best when you want **your own GitHub repo** with only Firecrawl (or trading, etc.) and no extra examples.
+Best when you want **your own GitHub repo** with only Firecrawl and no extra examples.
 
-1. **Fork** [abstraxn-agent-examples](https://github.com/abstraxn/abstraxn-agent-examples) on GitHub (or clone, then push to a new empty repo).
+1. **Fork** [abstraxn-agent-examples](https://github.com/Abstraxn-Labs/abstraxn-agent-examples) on GitHub (or clone, then push to a new empty repo).
 2. **Delete** the examples you do not need:
 
 ```bash
 # Example: keep only Firecrawl
 rm -rf examples/00-hello-wallet
-rm -rf examples/02-trading-agent
-rm -rf examples/03-tx-monitoring
-rm -rf examples/04-fraud-policy
 # Optional: remove template if you are not adding new examples
 rm -rf templates/next-agent
 ```
@@ -121,15 +115,12 @@ Each example customizes **one file**: `lib/agent.ts` (name, system prompt, allow
 
 ---
 
-## All examples (Wave 1)
+## All examples
 
 | Example | Port | MCP tools (high level) |
 |---------|------|-------------------------|
 | [hello-wallet](examples/00-hello-wallet) | 3000 | balance, address, gas |
 | [firecrawl-research](examples/01-firecrawl-research) | 3001 | `firecrawl_scrape` |
-| [trading-agent](examples/02-trading-agent) | 3002 | swap quotes + spend policy |
-| [tx-monitoring](examples/03-tx-monitoring) | 3003 | tx status, analytics |
-| [fraud-policy](examples/04-fraud-policy) | 3004 | policies + blocked transfers |
 
 Blog walkthroughs: [abstraxn.com/blogs](https://abstraxn.com/blogs) · Index: [SERIES.md](SERIES.md)
 
