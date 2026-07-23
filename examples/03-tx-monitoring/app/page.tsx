@@ -84,7 +84,9 @@ export default function HomePage() {
           <div style={{ flex: 1, overflow: 'auto', padding: 16, display: 'grid', gap: 12 }}>
             {messages.length === 0 && (
               <p style={{ color: 'var(--muted)', margin: 0 }}>
-                Try: &quot;What is my wallet balance and current gas info?&quot;
+                Try: &quot;What is my wallet balance and current gas info?&quot;, &quot;Simulate
+                sending 0.001 ETH to my own wallet on base-sepolia&quot;, or paste a tx hash and
+                ask &quot;What happened with this transaction?&quot;
               </p>
             )}
             {messages.map((message) => (

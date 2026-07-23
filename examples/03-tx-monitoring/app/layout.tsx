@@ -3,7 +3,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Transaction Monitoring Agent',
-  description: 'Watch balances and transactions with Abstraxn',
+  description: 'Watch, simulate, and decode transactions with Abstraxn + Tenderly',
 };
 
 export default function RootLayout({

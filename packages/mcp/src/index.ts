@@ -27,6 +27,8 @@ export const TOOL_SETS = {
   ] as const,
   txMonitoring: [
     'get_transaction_status',
+    'tenderly_simulate_transaction',
+    'tenderly_explain_transaction',
     'get_balance',
     'get_wallet_address',
     'get_gas_info',

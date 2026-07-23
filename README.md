@@ -128,7 +128,7 @@ Each example customizes **one file**: `lib/agent.ts` (name, system prompt, allow
 | [hello-wallet](examples/00-hello-wallet) | 3000 | balance, address, gas |
 | [firecrawl-research](examples/01-firecrawl-research) | 3001 | `firecrawl_scrape` |
 | [trading-agent](examples/02-trading-agent) | 3002 | swap quotes + spend policy |
-| [tx-monitoring](examples/03-tx-monitoring) | 3003 | tx status, analytics |
+| [tx-monitoring](examples/03-tx-monitoring) | 3003 | tx status, analytics, Tenderly simulate/decode |
 | [fraud-policy](examples/04-fraud-policy) | 3004 | policies + blocked transfers |
 
 Blog walkthroughs: [abstraxn.com/blogs](https://abstraxn.com/blogs) · Index: [SERIES.md](SERIES.md)
