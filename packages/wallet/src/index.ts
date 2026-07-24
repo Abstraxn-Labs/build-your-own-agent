@@ -6,6 +6,11 @@ import type {
 } from '@abstraxn/agent-kit';
 import { logInfo, logWarn } from '@abstraxn-examples/utils';
 
+export {
+  mintCoinbaseBearerToken,
+  type MintCoinbaseBearerTokenInput,
+} from './coinbase-byok.js';
+
 export interface DemoSpendPolicy {
   enabled?: boolean;
   budgetUsd?: string;

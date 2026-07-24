@@ -28,6 +28,8 @@ export const TOOL_SETS = {
   coinbaseTrading: [
     'coinbase_get_price',
     'coinbase_get_balance',
+    'coinbase_get_key_permissions',
+    'coinbase_preview_order',
     'coinbase_place_order',
     'coinbase_get_order_status',
     'coinbase_cancel_order',

@@ -19,10 +19,12 @@
   },
   "dependencies": {
     "@abstraxn/agent-kit": "catalog:",
-    "@abstraxn-examples/utils": "workspace:*"
+    "@abstraxn-examples/utils": "workspace:*",
+    "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
     "@types/node": "catalog:",
+    "@types/jsonwebtoken": "^9.0.7",
     "typescript": "catalog:"
   }
 }
