@@ -29,7 +29,7 @@ pnpm install
 cp .env.example .env
 # Set ABSTRAXN_API_KEY (Dashboard → Agentic Stack) and LLM_API_KEY (see docs/LLM-PROVIDERS.md)
 
-#To run all the example
+# To run all the example
 pnpm run dev
 # → http://localhost:3000
 ```
