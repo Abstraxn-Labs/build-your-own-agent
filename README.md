@@ -29,8 +29,9 @@ pnpm install
 cp .env.example .env
 # Set ABSTRAXN_API_KEY (Dashboard → Agentic Stack) and LLM_API_KEY (see docs/LLM-PROVIDERS.md)
 
-pnpm --filter @abstraxn-examples/firecrawl-research dev
-# → http://localhost:3001
+#To run all the example
+pnpm run dev
+# → http://localhost:3000
 ```
 
 Then open [`examples/01-firecrawl-research/lib/agent.ts`](examples/01-firecrawl-research/lib/agent.ts) — that is the **only file you need to customize** for your use case (system prompt + tool set).
