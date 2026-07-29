@@ -21,6 +21,7 @@ Open-source examples for building AI agents with [`@abstraxn/agent-kit`](https:/
 | Trading / swap quotes | [`examples/02-trading-agent`](examples/02-trading-agent) | `pnpm --filter @abstraxn-examples/trading-agent dev` |
 | Transaction monitoring | [`examples/03-tx-monitoring`](examples/03-tx-monitoring) | `pnpm --filter @abstraxn-examples/tx-monitoring dev` |
 | Fraud / policy guardrails | [`examples/04-fraud-policy`](examples/04-fraud-policy) | `pnpm --filter @abstraxn-examples/fraud-policy dev` |
+| Crypto market data (CoinMarketCap) | [`examples/05-crypto-market-data`](examples/05-crypto-market-data) | `pnpm --filter @abstraxn-examples/crypto-market-data dev` |
 | Verify setup (smoke test) | [`examples/00-hello-wallet`](examples/00-hello-wallet) | `pnpm --filter @abstraxn-examples/hello-wallet dev` |
 
 **Minimal steps (Firecrawl example):**
@@ -70,6 +71,7 @@ rm -rf examples/00-hello-wallet
 rm -rf examples/02-trading-agent
 rm -rf examples/03-tx-monitoring
 rm -rf examples/04-fraud-policy
+rm -rf examples/05-crypto-market-data
 # Optional: remove template if you are not adding new examples
 rm -rf templates/next-agent
 ```
@@ -130,6 +132,7 @@ Each example customizes **one file**: `lib/agent.ts` (name, system prompt, allow
 | [trading-agent](examples/02-trading-agent) | 3002 | swap quotes + spend policy |
 | [tx-monitoring](examples/03-tx-monitoring) | 3003 | tx status, analytics |
 | [fraud-policy](examples/04-fraud-policy) | 3004 | policies + blocked transfers |
+| [crypto-market-data](examples/05-crypto-market-data) | 3005 | `cmc_*` (x402-paid CoinMarketCap data) |
 
 Blog walkthroughs: [abstraxn.com/blogs](https://abstraxn.com/blogs) · Index: [SERIES.md](SERIES.md)
 

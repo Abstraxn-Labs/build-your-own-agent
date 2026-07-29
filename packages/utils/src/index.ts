@@ -14,6 +14,10 @@ export const abstraxnEnvSchema = z.object({
   ABSTRAXN_EVM_ADDRESS: z.string().optional(),
   ABSTRAXN_ACCESS_KEY: z.string().optional(),
   ABSTRAXN_ORGANIZATION_ID: z.string().optional(),
+  /** Base mainnet RPC used by `signX402Payment` (@abstraxn-examples/wallet). */
+  CHAIN_RPC_BASE: z.string().url().optional(),
+  /** Hard cap (USD) enforced before signing any x402 payment challenge. */
+  X402_MAX_PAYMENT_USD: z.string().optional(),
 });
 
 export type AbstraxnEnv = z.infer<typeof abstraxnEnvSchema>;

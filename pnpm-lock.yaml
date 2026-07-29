@@ -305,6 +305,55 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
 
+  examples/05-crypto-market-data:
+    dependencies:
+      '@abstraxn-examples/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@abstraxn-examples/llm':
+        specifier: workspace:*
+        version: link:../../packages/llm
+      '@abstraxn-examples/mcp':
+        specifier: workspace:*
+        version: link:../../packages/mcp
+      '@abstraxn-examples/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
+      '@abstraxn-examples/wallet':
+        specifier: workspace:*
+        version: link:../../packages/wallet
+      '@ai-sdk/react':
+        specifier: 'catalog:'
+        version: 4.0.35(react@19.2.7)(zod@4.4.3)
+      ai:
+        specifier: 'catalog:'
+        version: 7.0.32(zod@4.4.3)
+      next:
+        specifier: 'catalog:'
+        version: 16.2.10(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      react:
+        specifier: 'catalog:'
+        version: 19.2.7
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.2.7(react@19.2.7)
+      zod:
+        specifier: 'catalog:'
+        version: 4.4.3
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.20.1
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.17
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.2.3(@types/react@19.2.17)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
   packages/core:
     dependencies:
       '@abstraxn-examples/utils':
@@ -312,7 +361,7 @@ importers:
         version: link:../utils
       '@abstraxn/agent-kit':
         specifier: 'catalog:'
-        version: 1.4.1(typescript@5.9.3)(zod@4.4.3)
+        version: 1.4.1(typescript@5.9.3)
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -389,9 +438,21 @@ importers:
       '@abstraxn/agent-kit':
         specifier: 'catalog:'
         version: 1.4.1(typescript@5.9.3)(zod@4.4.3)
+      '@abstraxn/server-signer':
+        specifier: ^1.2.2
+        version: 1.2.2(typescript@5.9.3)(zod@4.4.3)
+      '@x402/core':
+        specifier: ^2.12.0
+        version: 2.20.0
+      '@x402/evm':
+        specifier: ^2.12.0
+        version: 2.20.0(typescript@5.9.3)
       jsonwebtoken:
         specifier: ^9.0.2
         version: 9.0.3
+      viem:
+        specifier: ^2.51.3
+        version: 2.55.4(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       '@types/jsonwebtoken':
         specifier: ^9.0.7
@@ -858,6 +919,12 @@ packages:
   '@workflow/serde@4.1.0':
     resolution: {integrity: sha512-pav4F2BoirECWR7Nf1TKt+2eETcBj7jj4cBefQ8VXQCA6NPkaKeLfj/zMgi+3zYV5ZIBT4GuUiphsj0/b9hPQQ==}
 
+  '@x402/core@2.20.0':
+    resolution: {integrity: sha512-BaPPVTZ4LAeYKB0yRMOnuzDGoratyLeYobBMH/leFmRe+al94RQnw/uwuw9Rgsupsywz6JQdHzhm4LsE4snuDg==}
+
+  '@x402/evm@2.20.0':
+    resolution: {integrity: sha512-TugTYYHHhDs/QxT4ek4+oSRF9GsyVMYEirrMPRCNrF7FZLaSntNXMaDk7TEaukiwBPxbfciaJLRg84aa5lIpdQ==}
+
   abitype@1.2.3:
     resolution: {integrity: sha512-Ofer5QUnuUdTFsBRwARMoWKOH1ND5ehwYhJ3OJ/BQO+StkwQjHw0XyVh4vDttzHB7QOFhPHa/o413PJ82gU/Tg==}
     peerDependencies:
@@ -1147,10 +1214,23 @@ packages:
       utf-8-validate:
         optional: true
 
+  zod@3.25.76:
+    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
+
   zod@4.4.3:
     resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
 
 snapshots:
+
+  '@abstraxn/agent-kit@1.4.1(typescript@5.9.3)':
+    dependencies:
+      '@abstraxn/server-signer': 1.2.2(typescript@5.9.3)
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - typescript
+      - utf-8-validate
+      - zod
 
   '@abstraxn/agent-kit@1.4.1(typescript@5.9.3)(zod@4.4.3)':
     dependencies:
@@ -1163,6 +1243,20 @@ snapshots:
       - zod
 
   '@abstraxn/policy-core@0.1.3': {}
+
+  '@abstraxn/server-signer@1.2.2(typescript@5.9.3)':
+    dependencies:
+      '@abstraxn/policy-core': 0.1.3
+      '@turnkey/api-key-stamper': 0.6.8
+      '@turnkey/crypto': 2.10.1
+      '@turnkey/http': 4.1.1
+      viem: 2.55.4(typescript@5.9.3)
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - typescript
+      - utf-8-validate
+      - zod
 
   '@abstraxn/server-signer@1.2.2(typescript@5.9.3)(zod@4.4.3)':
     dependencies:
@@ -1472,7 +1566,7 @@ snapshots:
 
   '@scure/bip32@1.7.0':
     dependencies:
-      '@noble/curves': 1.9.1
+      '@noble/curves': 1.9.7
       '@noble/hashes': 1.8.0
       '@scure/base': 1.2.6
 
@@ -1585,6 +1679,29 @@ snapshots:
   '@vercel/oidc@3.2.0': {}
 
   '@workflow/serde@4.1.0': {}
+
+  '@x402/core@2.20.0':
+    dependencies:
+      zod: 3.25.76
+
+  '@x402/evm@2.20.0(typescript@5.9.3)':
+    dependencies:
+      '@x402/core': 2.20.0
+      viem: 2.55.4(typescript@5.9.3)(zod@3.25.76)
+      zod: 3.25.76
+    transitivePeerDependencies:
+      - bufferutil
+      - typescript
+      - utf-8-validate
+
+  abitype@1.2.3(typescript@5.9.3):
+    optionalDependencies:
+      typescript: 5.9.3
+
+  abitype@1.2.3(typescript@5.9.3)(zod@3.25.76):
+    optionalDependencies:
+      typescript: 5.9.3
+      zod: 3.25.76
 
   abitype@1.2.3(typescript@5.9.3)(zod@4.4.3):
     optionalDependencies:
@@ -1724,6 +1841,36 @@ snapshots:
     dependencies:
       whatwg-url: 5.0.0
 
+  ox@0.14.30(typescript@5.9.3):
+    dependencies:
+      '@adraffy/ens-normalize': 1.11.1
+      '@noble/ciphers': 1.3.0
+      '@noble/curves': 1.9.1
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      abitype: 1.2.3(typescript@5.9.3)
+      eventemitter3: 5.0.1
+    optionalDependencies:
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - zod
+
+  ox@0.14.30(typescript@5.9.3)(zod@3.25.76):
+    dependencies:
+      '@adraffy/ens-normalize': 1.11.1
+      '@noble/ciphers': 1.3.0
+      '@noble/curves': 1.9.1
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      abitype: 1.2.3(typescript@5.9.3)(zod@3.25.76)
+      eventemitter3: 5.0.1
+    optionalDependencies:
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - zod
+
   ox@0.14.30(typescript@5.9.3)(zod@4.4.3):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
@@ -1846,6 +1993,40 @@ snapshots:
     dependencies:
       react: 19.2.7
 
+  viem@2.55.4(typescript@5.9.3):
+    dependencies:
+      '@noble/curves': 1.9.1
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      abitype: 1.2.3(typescript@5.9.3)
+      isows: 1.0.7(ws@8.21.0)
+      ox: 0.14.30(typescript@5.9.3)
+      ws: 8.21.0
+    optionalDependencies:
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+      - zod
+
+  viem@2.55.4(typescript@5.9.3)(zod@3.25.76):
+    dependencies:
+      '@noble/curves': 1.9.1
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      abitype: 1.2.3(typescript@5.9.3)(zod@3.25.76)
+      isows: 1.0.7(ws@8.21.0)
+      ox: 0.14.30(typescript@5.9.3)(zod@3.25.76)
+      ws: 8.21.0
+    optionalDependencies:
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+      - zod
+
   viem@2.55.4(typescript@5.9.3)(zod@4.4.3):
     dependencies:
       '@noble/curves': 1.9.1
@@ -1871,5 +2052,7 @@ snapshots:
       webidl-conversions: 3.0.1
 
   ws@8.21.0: {}
+
+  zod@3.25.76: {}
 
   zod@4.4.3: {}
