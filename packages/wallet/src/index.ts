@@ -6,6 +6,13 @@ import type {
 } from '@abstraxn/agent-kit';
 import { logInfo, logWarn } from '@abstraxn-examples/utils';
 
+export {
+  mintCoinbaseBearerToken,
+  type MintCoinbaseBearerTokenInput,
+} from './coinbase-byok.js';
+
+export { signX402Payment, type X402SigningSession } from './x402-signer.js';
+
 export interface DemoSpendPolicy {
   enabled?: boolean;
   budgetUsd?: string;

@@ -19,6 +19,8 @@
   },
   "dependencies": {
     "@abstraxn/agent-kit": "catalog:",
+    "@abstraxn-examples/utils": "workspace:*",
+    "@abstraxn-examples/wallet": "workspace:*",
     "ai": "catalog:",
     "zod": "catalog:"
   },

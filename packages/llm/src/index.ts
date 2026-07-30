@@ -3,6 +3,7 @@ import {
   mcpToolsToAiSdk,
   resolveToolNames,
   type ToolSetName,
+  type X402SigningSession,
 } from '@abstraxn-examples/mcp';
 import type { LlmEnv } from '@abstraxn-examples/utils';
 import { loadLlmEnv } from '@abstraxn-examples/utils';
@@ -32,6 +33,8 @@ export interface CreateAgentChatOptions {
   extraTools?: ToolSet;
   /** Optional LLM config (defaults to env) */
   llm?: LlmEnv;
+  /** When set, payment-required MCP tool calls are signed and retried automatically. */
+  session?: X402SigningSession;
 }
 
 /**
@@ -64,7 +67,7 @@ export function buildSystemPrompt(
  */
 export async function createAgentChat(options: CreateAgentChatOptions) {
   const toolNames = resolveToolNames(options.config.tools);
-  const mcpTools = await mcpToolsToAiSdk(options.mcp, toolNames);
+  const mcpTools = await mcpToolsToAiSdk(options.mcp, toolNames, options.session);
   const tools = { ...mcpTools, ...options.extraTools };
 
   const baseLlm = options.llm ?? loadLlmEnv();
