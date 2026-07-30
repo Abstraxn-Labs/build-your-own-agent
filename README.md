@@ -27,14 +27,15 @@ Open-source examples for building AI agents with [`@abstraxn/agent-kit`](https:/
 **Minimal steps (Firecrawl example):**
 
 ```bash
-git clone https://github.com/abstraxn/abstraxn-agent-examples.git
+git clone https://github.com/Abstraxn-Labs/abstraxn-agent-examples.git
 cd abstraxn-agent-examples
 pnpm install
 cp .env.example .env
 # Set ABSTRAXN_API_KEY (Dashboard → Agentic Stack) and LLM_API_KEY (see docs/LLM-PROVIDERS.md)
 
-pnpm --filter @abstraxn-examples/firecrawl-research dev
-# → http://localhost:3001
+# To run all the example
+pnpm run dev
+# → http://localhost:3000
 ```
 
 Then open [`examples/01-firecrawl-research/lib/agent.ts`](examples/01-firecrawl-research/lib/agent.ts) — that is the **only file you need to customize** for your use case (system prompt + tool set).
@@ -43,7 +44,7 @@ Then open [`examples/01-firecrawl-research/lib/agent.ts`](examples/01-firecrawl-
 
 | Piece | Do you need it for crawling only? | Why it exists |
 |-------|----------------------------------|---------------|
-| `examples/02-trading-agent`, `03-*`, `04-*` | **No** — ignore them | Other developers find their use case in one place |
+| `examples/00-hello-wallet` | **No** — ignore it | Smoke-test example other developers use to verify setup |
 | `packages/core`, `mcp`, `llm`, `utils` | **Yes** (via dependencies) | Shared glue so each example stays ~50 lines instead of 500 |
 | `templates/next-agent` | Only if you add a new use case | Copy-paste scaffold for contributors |
 
@@ -60,9 +61,9 @@ Use the full repo as-is. Run only the example you care about with `pnpm --filter
 
 ### Option B — Fork and delete (cleanest for one use case)
 
-Best when you want **your own GitHub repo** with only Firecrawl (or trading, etc.) and no extra examples.
+Best when you want **your own GitHub repo** with only Firecrawl and no extra examples.
 
-1. **Fork** [abstraxn-agent-examples](https://github.com/abstraxn/abstraxn-agent-examples) on GitHub (or clone, then push to a new empty repo).
+1. **Fork** [abstraxn-agent-examples](https://github.com/Abstraxn-Labs/abstraxn-agent-examples) on GitHub (or clone, then push to a new empty repo).
 2. **Delete** the examples you do not need:
 
 ```bash
@@ -123,7 +124,7 @@ Each example customizes **one file**: `lib/agent.ts` (name, system prompt, allow
 
 ---
 
-## All examples (Wave 1)
+## All examples
 
 | Example | Port | MCP tools (high level) |
 |---------|------|-------------------------|

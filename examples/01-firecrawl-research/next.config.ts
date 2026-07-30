@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
     '@abstraxn-examples/mcp',
     '@abstraxn-examples/wallet',
     '@abstraxn-examples/llm',
+    '@abstraxn-examples/ui',
     '@abstraxn-examples/utils',
   ],
 };
