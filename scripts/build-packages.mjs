@@ -12,7 +12,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(path.join(root, 'package.json'));
 const tsc = require.resolve('typescript/bin/tsc');
 
-const packages = ['utils', 'core', 'mcp', 'wallet', 'llm', 'ui'];
+const packages = ['utils', 'core', 'wallet', 'mcp', 'llm', 'ui'];
 
 for (const name of packages) {
   const config = path.join(root, 'packages', name, 'tsconfig.json');
