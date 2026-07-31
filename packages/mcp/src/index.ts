@@ -44,6 +44,21 @@ export const TOOL_SETS = {
     'transfer',
     'data_and_analytics',
   ] as const,
+  swiggyFoodOrdering: [
+    'swiggy_get_addresses',
+    'swiggy_search_restaurants',
+    'swiggy_get_menu',
+    'swiggy_search_menu',
+    'swiggy_manage_cart',
+    'swiggy_get_payment_options',
+    'swiggy_place_order',
+    'swiggy_check_payment_status',
+    'swiggy_get_order_status',
+    'swiggy_get_order_history',
+    'swiggy_get_order_details',
+    'swiggy_fetch_coupons',
+    'swiggy_apply_coupon',
+  ] as const,
 } as const;
 
 export type ToolSetName = keyof typeof TOOL_SETS;

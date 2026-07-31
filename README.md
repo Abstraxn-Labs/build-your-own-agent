@@ -21,6 +21,8 @@ Open-source examples for building AI agents with [`@abstraxn/agent-kit`](https:/
 | Trading / swap quotes | [`examples/02-trading-agent`](examples/02-trading-agent) | `pnpm --filter @abstraxn-examples/trading-agent dev` |
 | Transaction monitoring | [`examples/03-tx-monitoring`](examples/03-tx-monitoring) | `pnpm --filter @abstraxn-examples/tx-monitoring dev` |
 | Fraud / policy guardrails | [`examples/04-fraud-policy`](examples/04-fraud-policy) | `pnpm --filter @abstraxn-examples/fraud-policy dev` |
+| Food ordering (Swiggy) | [`examples/05-swiggy-food-ordering`](examples/05-swiggy-food-ordering) | `pnpm --filter @abstraxn-examples/swiggy-food-ordering dev` |
+| Pay-per-call web/lead-gen tools (x402) | [`examples/06-openweb-ninja-x402`](examples/06-openweb-ninja-x402) | `pnpm --filter @abstraxn-examples/openweb-ninja-x402 dev` |
 | Verify setup (smoke test) | [`examples/00-hello-wallet`](examples/00-hello-wallet) | `pnpm --filter @abstraxn-examples/hello-wallet dev` |
 
 **Minimal steps (Firecrawl example):**
@@ -42,7 +44,7 @@ Then open [`examples/01-firecrawl-research/lib/agent.ts`](examples/01-firecrawl-
 
 | Piece | Do you need it for crawling only? | Why it exists |
 |-------|----------------------------------|---------------|
-| `examples/02-trading-agent`, `03-*`, `04-*` | **No** — ignore them | Other developers find their use case in one place |
+| `examples/02-trading-agent`, `03-*`, `04-*`, `05-*` | **No** — ignore them | Other developers find their use case in one place |
 | `packages/core`, `mcp`, `llm`, `utils` | **Yes** (via dependencies) | Shared glue so each example stays ~50 lines instead of 500 |
 | `templates/next-agent` | Only if you add a new use case | Copy-paste scaffold for contributors |
 
@@ -70,6 +72,7 @@ rm -rf examples/00-hello-wallet
 rm -rf examples/02-trading-agent
 rm -rf examples/03-tx-monitoring
 rm -rf examples/04-fraud-policy
+rm -rf examples/05-swiggy-food-ordering
 # Optional: remove template if you are not adding new examples
 rm -rf templates/next-agent
 ```
@@ -130,6 +133,8 @@ Each example customizes **one file**: `lib/agent.ts` (name, system prompt, allow
 | [trading-agent](examples/02-trading-agent) | 3002 | swap quotes + spend policy |
 | [tx-monitoring](examples/03-tx-monitoring) | 3003 | tx status, analytics, Tenderly simulate/decode |
 | [fraud-policy](examples/04-fraud-policy) | 3004 | policies + blocked transfers |
+| [swiggy-food-ordering](examples/05-swiggy-food-ordering) | 3005 | `swiggy_search_restaurants`, `swiggy_get_menu`, `swiggy_manage_cart`, `swiggy_place_order`, `swiggy_get_order_status` |
+| [openweb-ninja-x402](examples/06-openweb-ninja-x402) | 3006 | 26 `openweb_ninja_*` pay-per-call web/SERP/lead-gen tools, paid over x402 (real USDC on Base/Polygon/Arbitrum) |
 
 Blog walkthroughs: [abstraxn.com/blogs](https://abstraxn.com/blogs) · Index: [SERIES.md](SERIES.md)
 
