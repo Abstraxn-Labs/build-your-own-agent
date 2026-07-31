@@ -2,25 +2,40 @@
 
 Series: **Build your Agent with Abstraxn**
 
-## Blog outline
+## Blog format (merged — educational + developer)
 
-**Title:** Build a Policy-Enforced “Fraud Guard” Agent with Abstraxn
+One post, two audiences. Do **not** split into separate educational vs developer blogs.
 
-1. Agents need hard stops, not hope
-2. What this demo is (and isn’t) — policies ≠ full AML
-3. Spend + interaction policy setup
-4. Demo: blocked transfer to blacklisted address
-5. CTA — policies docs + series GitHub
+| Section | Audience | Purpose |
+|---------|----------|---------|
+| Hook + why hard stops | PM, evaluators | Prompt injection vs wallet policy |
+| Honest framing | Compliance-minded | Policies ≠ full AML |
+| How spend + interaction fit | Architects | Policy table, architecture diagram |
+| Try it without code | Dashboard users | Dashboard policies + blocked transfer demo |
+| Build it (steps + code) | Developers | `session.ts`, `agent.ts`, demo prompt |
+| What this is not + CTA | Both | Guardrail layer first, series links |
+
+**Live post:** abstraxn.com/blogs/build-fraud-policy-agent-abstraxn (draft)
+
+**Cover image text** (punchy — not the blog title):
+- Headline suggestion: *Hard Stops, Not Hope*
+- Subtitle suggestion: *Spend caps + recipient blacklists — policy blocks the transfer, the agent explains why.*
+
+**Code refs:** `examples/04-fraud-policy/lib/agent.ts`, `lib/session.ts`, `packages/mcp` (`TOOL_SETS.fraudPolicy`)
 
 ## LinkedIn draft
 
-Hook: Prompt injection shouldn’t empty your agent’s wallet.
+Hook: Prompt injection shouldn't empty your agent's wallet.
 
-- Abstraxn spend policy + recipient blacklist
-- Agent explains *why* a transfer was blocked
-- Example: `examples/04-fraud-policy`
+- Why: LLMs can be persuaded; wallet policy should not be
+- No-code: dashboard spend + interaction policies
+- Dev path: clone `examples/04-fraud-policy`, demo blocked transfer to 0x…dead
 
-Not a full fraud suite — it’s the guardrail layer every agent needs first.
+Not a full fraud suite — it's the guardrail layer every agent needs first.
+
+Repo: github.com/Abstraxn-Labs/abstraxn-agent-examples  
+Blog: abstraxn.com/blogs/build-fraud-policy-agent-abstraxn  
+#AIAgents #Web3 #BuildYourOwnAgent
 
 ## Video script (60–90s)
 

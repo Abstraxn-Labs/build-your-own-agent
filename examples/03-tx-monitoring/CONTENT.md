@@ -2,9 +2,9 @@
 
 Series: **Build your Agent with Abstraxn**
 
-## Blog outline
+## Blog format (merged — educational + developer)
 
-**Title:** Build a Transaction Monitoring Agent with Abstraxn
+One post, two audiences. Do **not** split into separate educational vs developer blogs.
 
 1. Ops need agents that watch, not just chat
 2. Tools — `get_transaction_status`, balances, gas, analytics
@@ -25,7 +25,7 @@ Hook: Your agent should notice a stuck tx before your users do — and know why 
 
 ## Video script (60–90s)
 
-1. Title card
+1. Title: Ops agents that watch the chain
 2. Ask for wallet balance + gas
 3. Simulate a transfer, then paste a failed tx hash → decoded revert reason
 4. End card with repo link

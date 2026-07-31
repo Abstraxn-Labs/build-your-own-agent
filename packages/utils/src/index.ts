@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { loadMonorepoEnv } from './load-monorepo-env.js';
 
 // ── Abstraxn Agent Kit ──────────────────────────────────────────────────────
 
@@ -24,6 +25,7 @@ export type ExampleEnv = AbstraxnEnv;
 export function loadAbstraxnEnv(
   source: Record<string, string | undefined> = process.env,
 ): AbstraxnEnv {
+  loadMonorepoEnv();
   return parseEnv(abstraxnEnvSchema, source, 'Abstraxn');
 }
 
@@ -75,6 +77,7 @@ export interface LlmEnv {
 export function loadLlmEnv(
   source: Record<string, string | undefined> = process.env,
 ): LlmEnv {
+  loadMonorepoEnv();
   const parsed = parseEnv(llmEnvSchema, source, 'LLM');
 
   const apiKey = parsed.LLM_API_KEY ?? parsed.OPENAI_API_KEY;
@@ -109,6 +112,7 @@ export function loadLlmEnv(
 export function loadEnv(
   source: Record<string, string | undefined> = process.env,
 ): AbstraxnEnv & LlmEnv {
+  loadMonorepoEnv();
   return { ...loadAbstraxnEnv(source), ...loadLlmEnv(source) };
 }
 
@@ -130,6 +134,7 @@ function parseEnv<T extends z.ZodTypeAny>(
 }
 
 export function requireEnv(name: string): string {
+  loadMonorepoEnv();
   const value = process.env[name];
   if (!value) {
     throw new Error(`Missing required env var: ${name}`);

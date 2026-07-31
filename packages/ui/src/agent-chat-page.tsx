@@ -1,9 +1,38 @@
 'use client';
 
-import { AgentChatPage } from '@abstraxn-examples/ui';
-import { agentMeta } from '@/lib/agent';
+import { useChat } from '@ai-sdk/react';
+import { DefaultChatTransport } from 'ai';
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
+import { type AgentMeta, messageText, toolNames } from './chat-utils.js';
+import { MessageBody } from './message-body.js';
 
-export default function HomePage() {
+export interface AgentChatPageProps {
+  agentMeta: AgentMeta;
+  emptyStatePrompt: string;
+}
+
+export function AgentChatPage({ agentMeta, emptyStatePrompt }: AgentChatPageProps) {
+  const transport = useMemo(
+    () => new DefaultChatTransport({ api: '/api/chat' }),
+    [],
+  );
+  const { messages, sendMessage, status, error } = useChat({ transport });
+  const [input, setInput] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isLoading = status === 'submitted' || status === 'streaming';
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }, [messages, status, error]);
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const text = input.trim();
+    if (!text || isLoading) return;
+    void sendMessage({ text });
+    setInput('');
+  };
+
   return (
     <main
       style={{
@@ -33,30 +62,26 @@ export default function HomePage() {
       </header>
 
       <section
+        className="agent-layout"
         style={{
           display: 'grid',
           gridTemplateColumns: 'minmax(0, 1fr) 280px',
           gap: 16,
         }}
-        className="layout"
       >
         <div
+          className="chat-panel"
           style={{
             background: 'var(--panel)',
             border: '1px solid var(--border)',
             borderRadius: 12,
-            minHeight: 480,
             display: 'flex',
             flexDirection: 'column',
           }}
         >
-          <div style={{ flex: 1, overflow: 'auto', padding: 16, display: 'grid', gap: 12 }}>
+          <div className="chat-messages">
             {messages.length === 0 && (
-              <p style={{ color: 'var(--muted)', margin: 0 }}>
-                Try: &quot;What is my wallet balance and current gas info?&quot;, &quot;Simulate
-                sending 0.001 ETH to my own wallet on base-sepolia&quot;, or paste a tx hash and
-                ask &quot;What happened with this transaction?&quot;
-              </p>
+              <p style={{ color: 'var(--muted)', margin: 0 }}>{emptyStatePrompt}</p>
             )}
             {messages.map((message) => (
               <div
@@ -66,7 +91,6 @@ export default function HomePage() {
                   border: '1px solid var(--border)',
                   borderRadius: 10,
                   padding: '10px 12px',
-                  whiteSpace: 'pre-wrap',
                   lineHeight: 1.45,
                 }}
               >
@@ -81,7 +105,7 @@ export default function HomePage() {
                 >
                   {message.role}
                 </div>
-                {messageText(message)}
+                <MessageBody text={messageText(message)} />
                 {toolNames(message).length ? (
                   <div style={{ marginTop: 8, fontSize: 12, color: 'var(--ok)' }}>
                     Tools: {toolNames(message).join(', ')}
@@ -92,6 +116,7 @@ export default function HomePage() {
             {error ? (
               <p style={{ color: 'var(--danger)', margin: 0 }}>{error.message}</p>
             ) : null}
+            <div ref={messagesEndRef} />
           </div>
           <form
             onSubmit={handleSubmit}
@@ -121,7 +146,7 @@ export default function HomePage() {
               disabled={isLoading || !input.trim()}
               style={{
                 background: 'var(--accent)',
-                color: '#fff',
+                color: 'var(--accent-fg)',
                 border: 0,
                 borderRadius: 8,
                 padding: '10px 16px',
@@ -160,12 +185,6 @@ export default function HomePage() {
           </p>
         </aside>
       </section>
-
-      <style>{`
-        @media (max-width: 800px) {
-          .layout { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
     </main>
   );
 }
