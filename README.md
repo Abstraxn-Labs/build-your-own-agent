@@ -22,6 +22,7 @@ Open-source examples for building AI agents with [`@abstraxn/agent-kit`](https:/
 | Transaction monitoring | [`examples/03-tx-monitoring`](examples/03-tx-monitoring) | `pnpm --filter @abstraxn-examples/tx-monitoring dev` |
 | Fraud / policy guardrails | [`examples/04-fraud-policy`](examples/04-fraud-policy) | `pnpm --filter @abstraxn-examples/fraud-policy dev` |
 | Crypto market data (CoinMarketCap) | [`examples/05-crypto-market-data`](examples/05-crypto-market-data) | `pnpm --filter @abstraxn-examples/crypto-market-data dev` |
+| Flight search / booking links (StableTravel) | [`examples/06-stable-travel-flights`](examples/06-stable-travel-flights) | `pnpm --filter @abstraxn-examples/stable-travel-flights dev` |
 | Verify setup (smoke test) | [`examples/00-hello-wallet`](examples/00-hello-wallet) | `pnpm --filter @abstraxn-examples/hello-wallet dev` |
 
 **Minimal steps (Firecrawl example):**
@@ -73,6 +74,7 @@ rm -rf examples/02-trading-agent
 rm -rf examples/03-tx-monitoring
 rm -rf examples/04-fraud-policy
 rm -rf examples/05-crypto-market-data
+rm -rf examples/06-stable-travel-flights
 # Optional: remove template if you are not adding new examples
 rm -rf templates/next-agent
 ```
@@ -134,6 +136,7 @@ Each example customizes **one file**: `lib/agent.ts` (name, system prompt, allow
 | [tx-monitoring](examples/03-tx-monitoring) | 3003 | tx status, analytics |
 | [fraud-policy](examples/04-fraud-policy) | 3004 | policies + blocked transfers |
 | [crypto-market-data](examples/05-crypto-market-data) | 3005 | `cmc_*` (x402-paid CoinMarketCap data) |
+| [stable-travel-flights](examples/06-stable-travel-flights) | 3006 | `stable_travel_*` (x402-paid StableTravel flight data) |
 
 Blog walkthroughs: [abstraxn.com/blogs](https://abstraxn.com/blogs) · Index: [SERIES.md](SERIES.md)
 

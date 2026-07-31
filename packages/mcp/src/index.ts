@@ -72,6 +72,13 @@ export const TOOL_SETS = {
     'cmc_get_marketcap_technical_analysis',
     'get_wallet_address',
   ] as const,
+  stableTravel: [
+    'stable_travel_search_flights',
+    'stable_travel_get_booking_options',
+    'stable_travel_search_award_flights',
+    'stable_travel_get_flight_status',
+    'get_wallet_address',
+  ] as const,
 } as const;
 
 export type ToolSetName = keyof typeof TOOL_SETS;
