@@ -14,7 +14,6 @@
     "@abstraxn-examples/core": "workspace:*",
     "@abstraxn-examples/llm": "workspace:*",
     "@abstraxn-examples/mcp": "workspace:*",
-    "@abstraxn-examples/ui": "workspace:*",
     "@abstraxn-examples/utils": "workspace:*",
     "@abstraxn-examples/wallet": "workspace:*",
     "@ai-sdk/react": "catalog:",

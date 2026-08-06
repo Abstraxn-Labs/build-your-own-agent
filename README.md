@@ -21,21 +21,24 @@ Open-source examples for building AI agents with [`@abstraxn/agent-kit`](https:/
 | Trading / swap quotes | [`examples/02-trading-agent`](examples/02-trading-agent) | `pnpm --filter @abstraxn-examples/trading-agent dev` |
 | Transaction monitoring | [`examples/03-tx-monitoring`](examples/03-tx-monitoring) | `pnpm --filter @abstraxn-examples/tx-monitoring dev` |
 | Fraud / policy guardrails | [`examples/04-fraud-policy`](examples/04-fraud-policy) | `pnpm --filter @abstraxn-examples/fraud-policy dev` |
-| Food ordering (Swiggy) | [`examples/05-swiggy-food-ordering`](examples/05-swiggy-food-ordering) | `pnpm --filter @abstraxn-examples/swiggy-food-ordering dev` |
-| Pay-per-call web/lead-gen tools (x402) | [`examples/06-openweb-ninja-x402`](examples/06-openweb-ninja-x402) | `pnpm --filter @abstraxn-examples/openweb-ninja-x402 dev` |
+| Crypto market data (CoinMarketCap) | [`examples/05-crypto-market-data`](examples/05-crypto-market-data) | `pnpm --filter @abstraxn-examples/crypto-market-data dev` |
+| Flight search / booking links (StableTravel) | [`examples/06-stable-travel-flights`](examples/06-stable-travel-flights) | `pnpm --filter @abstraxn-examples/stable-travel-flights dev` |
+| Food ordering (Swiggy) | [`examples/07-swiggy-food-ordering`](examples/07-swiggy-food-ordering) | `pnpm --filter @abstraxn-examples/swiggy-food-ordering dev` |
+| Web/SERP/lead-gen search (OpenWeb Ninja, x402) | [`examples/08-openweb-ninja-x402`](examples/08-openweb-ninja-x402) | `pnpm --filter @abstraxn-examples/openweb-ninja-x402 dev` |
 | Verify setup (smoke test) | [`examples/00-hello-wallet`](examples/00-hello-wallet) | `pnpm --filter @abstraxn-examples/hello-wallet dev` |
 
 **Minimal steps (Firecrawl example):**
 
 ```bash
-git clone https://github.com/abstraxn/abstraxn-agent-examples.git
+git clone https://github.com/Abstraxn-Labs/abstraxn-agent-examples.git
 cd abstraxn-agent-examples
 pnpm install
 cp .env.example .env
 # Set ABSTRAXN_API_KEY (Dashboard → Agentic Stack) and LLM_API_KEY (see docs/LLM-PROVIDERS.md)
 
-pnpm --filter @abstraxn-examples/firecrawl-research dev
-# → http://localhost:3001
+# To run all the example
+pnpm run dev
+# → http://localhost:3000
 ```
 
 Then open [`examples/01-firecrawl-research/lib/agent.ts`](examples/01-firecrawl-research/lib/agent.ts) — that is the **only file you need to customize** for your use case (system prompt + tool set).
@@ -44,7 +47,7 @@ Then open [`examples/01-firecrawl-research/lib/agent.ts`](examples/01-firecrawl-
 
 | Piece | Do you need it for crawling only? | Why it exists |
 |-------|----------------------------------|---------------|
-| `examples/02-trading-agent`, `03-*`, `04-*`, `05-*` | **No** — ignore them | Other developers find their use case in one place |
+| `examples/00-hello-wallet` | **No** — ignore it | Smoke-test example other developers use to verify setup |
 | `packages/core`, `mcp`, `llm`, `utils` | **Yes** (via dependencies) | Shared glue so each example stays ~50 lines instead of 500 |
 | `templates/next-agent` | Only if you add a new use case | Copy-paste scaffold for contributors |
 
@@ -61,9 +64,9 @@ Use the full repo as-is. Run only the example you care about with `pnpm --filter
 
 ### Option B — Fork and delete (cleanest for one use case)
 
-Best when you want **your own GitHub repo** with only Firecrawl (or trading, etc.) and no extra examples.
+Best when you want **your own GitHub repo** with only Firecrawl and no extra examples.
 
-1. **Fork** [abstraxn-agent-examples](https://github.com/abstraxn/abstraxn-agent-examples) on GitHub (or clone, then push to a new empty repo).
+1. **Fork** [abstraxn-agent-examples](https://github.com/Abstraxn-Labs/abstraxn-agent-examples) on GitHub (or clone, then push to a new empty repo).
 2. **Delete** the examples you do not need:
 
 ```bash
@@ -72,7 +75,10 @@ rm -rf examples/00-hello-wallet
 rm -rf examples/02-trading-agent
 rm -rf examples/03-tx-monitoring
 rm -rf examples/04-fraud-policy
-rm -rf examples/05-swiggy-food-ordering
+rm -rf examples/05-crypto-market-data
+rm -rf examples/06-stable-travel-flights
+rm -rf examples/07-swiggy-food-ordering
+rm -rf examples/08-openweb-ninja-x402
 # Optional: remove template if you are not adding new examples
 rm -rf templates/next-agent
 ```
@@ -124,17 +130,19 @@ Each example customizes **one file**: `lib/agent.ts` (name, system prompt, allow
 
 ---
 
-## All examples (Wave 1)
+## All examples
 
 | Example | Port | MCP tools (high level) |
 |---------|------|-------------------------|
 | [hello-wallet](examples/00-hello-wallet) | 3000 | balance, address, gas |
 | [firecrawl-research](examples/01-firecrawl-research) | 3001 | `firecrawl_scrape` |
 | [trading-agent](examples/02-trading-agent) | 3002 | swap quotes + spend policy |
-| [tx-monitoring](examples/03-tx-monitoring) | 3003 | tx status, analytics, Tenderly simulate/decode |
+| [tx-monitoring](examples/03-tx-monitoring) | 3003 | tx status, analytics |
 | [fraud-policy](examples/04-fraud-policy) | 3004 | policies + blocked transfers |
-| [swiggy-food-ordering](examples/05-swiggy-food-ordering) | 3005 | `swiggy_search_restaurants`, `swiggy_get_menu`, `swiggy_manage_cart`, `swiggy_place_order`, `swiggy_get_order_status` |
-| [openweb-ninja-x402](examples/06-openweb-ninja-x402) | 3006 | 26 `openweb_ninja_*` pay-per-call web/SERP/lead-gen tools, paid over x402 (real USDC on Base/Polygon/Arbitrum) |
+| [crypto-market-data](examples/05-crypto-market-data) | 3005 | `cmc_*` (x402-paid CoinMarketCap data) |
+| [stable-travel-flights](examples/06-stable-travel-flights) | 3006 | `stable_travel_*` (x402-paid StableTravel flight data) |
+| [swiggy-food-ordering](examples/07-swiggy-food-ordering) | 3007 | `swiggy_*` (browse, cart, coupons, place/track order) |
+| [openweb-ninja-x402](examples/08-openweb-ninja-x402) | 3008 | `openweb_ninja_*` (26 x402-paid web/SERP/news/jobs/lead-gen tools) |
 
 Blog walkthroughs: [abstraxn.com/blogs](https://abstraxn.com/blogs) · Index: [SERIES.md](SERIES.md)
 

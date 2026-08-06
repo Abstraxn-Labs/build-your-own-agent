@@ -23,5 +23,10 @@ export async function POST(req: Request) {
     messages,
   });
 
-  return result.toUIMessageStreamResponse();
+  return result.toUIMessageStreamResponse({
+    onError: (error) => {
+      console.error('[tx-monitoring/api/chat]', error);
+      return error instanceof Error ? error.message : 'An error occurred.';
+    },
+  });
 }

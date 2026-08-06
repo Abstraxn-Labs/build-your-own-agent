@@ -30,10 +30,10 @@ export function loadMonorepoEnv(cwd: string = process.cwd()): void {
       forceReload?: boolean,
     ) => void;
   };
-  // Next.js already calls loadEnvConfig() once for the app's own directory
-  // (which has no local .env) before next.config.ts runs. @next/env memoizes
-  // that result, so calling it again for the monorepo root without
-  // forceReload just returns the earlier (empty) cached result instead of
-  // loading the root .env.
-  loadEnvConfig(root, process.env.NODE_ENV !== 'production', console, true);
+  // forceReload: true is required — Next.js already calls loadEnvConfig() internally
+  // against this app's own (monorepo-relative) directory before next.config.ts runs,
+  // which has no .env of its own. @next/env caches that first call's result and, by
+  // default, silently returns it on any later call in the same process — so without
+  // forceReload, this call would never actually read the monorepo root's .env.
+  loadEnvConfig(root, undefined, console, true);
 }
