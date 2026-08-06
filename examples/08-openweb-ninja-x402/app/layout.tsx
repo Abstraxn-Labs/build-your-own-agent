@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Transaction Monitoring Agent',
-  description: 'Watch, simulate, and decode transactions with Abstraxn + Tenderly',
+  title: 'OpenWeb Ninja x402 Agent',
+  description: 'Pay-per-call OpenWeb Ninja tools via x402, signed with the Abstraxn Agent Kit SDK',
 };
 
 export default function RootLayout({

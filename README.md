@@ -23,6 +23,8 @@ Open-source examples for building AI agents with [`@abstraxn/agent-kit`](https:/
 | Fraud / policy guardrails | [`examples/04-fraud-policy`](examples/04-fraud-policy) | `pnpm --filter @abstraxn-examples/fraud-policy dev` |
 | Crypto market data (CoinMarketCap) | [`examples/05-crypto-market-data`](examples/05-crypto-market-data) | `pnpm --filter @abstraxn-examples/crypto-market-data dev` |
 | Flight search / booking links (StableTravel) | [`examples/06-stable-travel-flights`](examples/06-stable-travel-flights) | `pnpm --filter @abstraxn-examples/stable-travel-flights dev` |
+| Food ordering (Swiggy) | [`examples/07-swiggy-food-ordering`](examples/07-swiggy-food-ordering) | `pnpm --filter @abstraxn-examples/swiggy-food-ordering dev` |
+| Web/SERP/lead-gen search (OpenWeb Ninja, x402) | [`examples/08-openweb-ninja-x402`](examples/08-openweb-ninja-x402) | `pnpm --filter @abstraxn-examples/openweb-ninja-x402 dev` |
 | Verify setup (smoke test) | [`examples/00-hello-wallet`](examples/00-hello-wallet) | `pnpm --filter @abstraxn-examples/hello-wallet dev` |
 
 **Minimal steps (Firecrawl example):**
@@ -75,6 +77,8 @@ rm -rf examples/03-tx-monitoring
 rm -rf examples/04-fraud-policy
 rm -rf examples/05-crypto-market-data
 rm -rf examples/06-stable-travel-flights
+rm -rf examples/07-swiggy-food-ordering
+rm -rf examples/08-openweb-ninja-x402
 # Optional: remove template if you are not adding new examples
 rm -rf templates/next-agent
 ```
@@ -137,6 +141,8 @@ Each example customizes **one file**: `lib/agent.ts` (name, system prompt, allow
 | [fraud-policy](examples/04-fraud-policy) | 3004 | policies + blocked transfers |
 | [crypto-market-data](examples/05-crypto-market-data) | 3005 | `cmc_*` (x402-paid CoinMarketCap data) |
 | [stable-travel-flights](examples/06-stable-travel-flights) | 3006 | `stable_travel_*` (x402-paid StableTravel flight data) |
+| [swiggy-food-ordering](examples/07-swiggy-food-ordering) | 3007 | `swiggy_*` (browse, cart, coupons, place/track order) |
+| [openweb-ninja-x402](examples/08-openweb-ninja-x402) | 3008 | `openweb_ninja_*` (26 x402-paid web/SERP/news/jobs/lead-gen tools) |
 
 Blog walkthroughs: [abstraxn.com/blogs](https://abstraxn.com/blogs) · Index: [SERIES.md](SERIES.md)
 

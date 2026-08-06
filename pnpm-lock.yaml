@@ -224,6 +224,9 @@ importers:
       '@abstraxn-examples/mcp':
         specifier: workspace:*
         version: link:../../packages/mcp
+      '@abstraxn-examples/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@abstraxn-examples/utils':
         specifier: workspace:*
         version: link:../../packages/utils
@@ -392,6 +395,113 @@ importers:
       react-dom:
         specifier: 'catalog:'
         version: 19.2.7(react@19.2.7)
+      zod:
+        specifier: 'catalog:'
+        version: 4.4.3
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.20.1
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.17
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.2.3(@types/react@19.2.17)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
+  examples/07-swiggy-food-ordering:
+    dependencies:
+      '@abstraxn-examples/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@abstraxn-examples/llm':
+        specifier: workspace:*
+        version: link:../../packages/llm
+      '@abstraxn-examples/mcp':
+        specifier: workspace:*
+        version: link:../../packages/mcp
+      '@abstraxn-examples/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
+      '@abstraxn-examples/wallet':
+        specifier: workspace:*
+        version: link:../../packages/wallet
+      '@ai-sdk/react':
+        specifier: 'catalog:'
+        version: 4.0.35(react@19.2.7)(zod@4.4.3)
+      ai:
+        specifier: 'catalog:'
+        version: 7.0.32(zod@4.4.3)
+      next:
+        specifier: 'catalog:'
+        version: 16.2.10(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      react:
+        specifier: 'catalog:'
+        version: 19.2.7
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.2.7(react@19.2.7)
+      zod:
+        specifier: 'catalog:'
+        version: 4.4.3
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.20.1
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.17
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.2.3(@types/react@19.2.17)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
+  examples/08-openweb-ninja-x402:
+    dependencies:
+      '@abstraxn-examples/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@abstraxn-examples/llm':
+        specifier: workspace:*
+        version: link:../../packages/llm
+      '@abstraxn-examples/mcp':
+        specifier: workspace:*
+        version: link:../../packages/mcp
+      '@abstraxn-examples/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
+      '@abstraxn-examples/wallet':
+        specifier: workspace:*
+        version: link:../../packages/wallet
+      '@ai-sdk/react':
+        specifier: 'catalog:'
+        version: 4.0.35(react@19.2.7)(zod@4.4.3)
+      '@x402/core':
+        specifier: ^2.12.0
+        version: 2.20.0
+      '@x402/evm':
+        specifier: ^2.12.0
+        version: 2.20.0(typescript@5.9.3)
+      ai:
+        specifier: 'catalog:'
+        version: 7.0.32(zod@4.4.3)
+      next:
+        specifier: 'catalog:'
+        version: 16.2.10(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      react:
+        specifier: 'catalog:'
+        version: 19.2.7
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.2.7(react@19.2.7)
+      viem:
+        specifier: ^2.51.3
+        version: 2.55.4(typescript@5.9.3)(zod@4.4.3)
       zod:
         specifier: 'catalog:'
         version: 4.4.3

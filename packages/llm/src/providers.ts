@@ -38,7 +38,10 @@ export function createLanguageModel(config?: LlmEnv): LanguageModel {
         apiKey: LLM_API_KEY,
         baseURL: LLM_BASE_URL ?? OPENROUTER_BASE_URL,
       });
-      return client(LLM_MODEL);
+      // OpenRouter proxies the classic Chat Completions API, not OpenAI's
+      // newer Responses API — calling client(...) directly defaults to
+      // Responses and 404s for most non-OpenAI models.
+      return client.chat(LLM_MODEL);
     }
 
     case 'openai-compatible': {
@@ -49,7 +52,9 @@ export function createLanguageModel(config?: LlmEnv): LanguageModel {
         apiKey: LLM_API_KEY,
         baseURL: LLM_BASE_URL,
       });
-      return client(LLM_MODEL);
+      // Third-party OpenAI-compatible APIs (Groq, Together, local vLLM, etc.)
+      // implement Chat Completions, not OpenAI's Responses API.
+      return client.chat(LLM_MODEL);
     }
 
     case 'anthropic': {

@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Transaction Monitoring Agent',
-  description: 'Watch, simulate, and decode transactions with Abstraxn + Tenderly',
+  title: 'Swiggy Food Ordering Agent',
+  description: 'Food-ordering agent with Swiggy via Abstraxn MCP tools',
 };
 
 export default function RootLayout({

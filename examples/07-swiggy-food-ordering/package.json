@@ -1,11 +1,11 @@
 {
-  "name": "@abstraxn-examples/tx-monitoring",
+  "name": "@abstraxn-examples/swiggy-food-ordering",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --port 3003",
+    "dev": "next dev --port 3007",
     "build": "next build",
-    "start": "next start --port 3003",
+    "start": "next start --port 3007",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "tsc -p tsconfig.json --noEmit",
     "clean": "rm -rf .next"
@@ -14,7 +14,6 @@
     "@abstraxn-examples/core": "workspace:*",
     "@abstraxn-examples/llm": "workspace:*",
     "@abstraxn-examples/mcp": "workspace:*",
-    "@abstraxn-examples/ui": "workspace:*",
     "@abstraxn-examples/utils": "workspace:*",
     "@abstraxn-examples/wallet": "workspace:*",
     "@ai-sdk/react": "catalog:",

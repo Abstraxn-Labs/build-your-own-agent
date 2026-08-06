@@ -1,6 +1,7 @@
 import { createAgentChat } from '@abstraxn-examples/llm';
 import { agentConfig } from '@/lib/agent';
 import { createMcpFromBootstrap, getOrCreateSession } from '@/lib/session';
+import { createSwiggyTools } from '@/lib/swiggy-tools';
 import type { UIMessage } from 'ai';
 
 export const runtime = 'nodejs';
@@ -13,6 +14,7 @@ export async function POST(req: Request) {
     description: agentConfig.system.slice(0, 120),
   });
   const mcp = createMcpFromBootstrap(session);
+  const swiggyTools = await createSwiggyTools(mcp);
 
   const result = await createAgentChat({
     mcp,
@@ -21,12 +23,8 @@ export async function POST(req: Request) {
       system: `${agentConfig.system}\n\nAgent wallet: ${session.evmAddress ?? 'unknown'}`,
     },
     messages,
+    extraTools: swiggyTools,
   });
 
-  return result.toUIMessageStreamResponse({
-    onError: (error) => {
-      console.error('[tx-monitoring/api/chat]', error);
-      return error instanceof Error ? error.message : 'An error occurred.';
-    },
-  });
+  return result.toUIMessageStreamResponse();
 }
