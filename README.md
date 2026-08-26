@@ -25,6 +25,7 @@ Open-source examples for building AI agents with [`@abstraxn/agent-kit`](https:/
 | Flight search / booking links (StableTravel) | [`examples/06-stable-travel-flights`](examples/06-stable-travel-flights) | `pnpm --filter @abstraxn-examples/stable-travel-flights dev` |
 | Food ordering (Swiggy) | [`examples/07-swiggy-food-ordering`](examples/07-swiggy-food-ordering) | `pnpm --filter @abstraxn-examples/swiggy-food-ordering dev` |
 | Web/SERP/lead-gen search (OpenWeb Ninja, x402) | [`examples/08-openweb-ninja-x402`](examples/08-openweb-ninja-x402) | `pnpm --filter @abstraxn-examples/openweb-ninja-x402 dev` |
+| Warrant-gated transfers (KYI) | [`examples/09-warrant-gated-transfer`](examples/09-warrant-gated-transfer) | `pnpm --filter @abstraxn-examples/warrant-gated-transfer dev` |
 | Verify setup (smoke test) | [`examples/00-hello-wallet`](examples/00-hello-wallet) | `pnpm --filter @abstraxn-examples/hello-wallet dev` |
 
 **Minimal steps (Firecrawl example):**
@@ -79,6 +80,7 @@ rm -rf examples/05-crypto-market-data
 rm -rf examples/06-stable-travel-flights
 rm -rf examples/07-swiggy-food-ordering
 rm -rf examples/08-openweb-ninja-x402
+rm -rf examples/09-warrant-gated-transfer
 # Optional: remove template if you are not adding new examples
 rm -rf templates/next-agent
 ```
@@ -143,6 +145,7 @@ Each example customizes **one file**: `lib/agent.ts` (name, system prompt, allow
 | [stable-travel-flights](examples/06-stable-travel-flights) | 3006 | `stable_travel_*` (x402-paid StableTravel flight data) |
 | [swiggy-food-ordering](examples/07-swiggy-food-ordering) | 3007 | `swiggy_*` (browse, cart, coupons, place/track order) |
 | [openweb-ninja-x402](examples/08-openweb-ninja-x402) | 3008 | `openweb_ninja_*` (26 x402-paid web/SERP/news/jobs/lead-gen tools) |
+| [warrant-gated-transfer](examples/09-warrant-gated-transfer) | 3009 | Warrant check before `transfer` |
 
 Blog walkthroughs: [abstraxn.com/blogs](https://abstraxn.com/blogs) · Index: [SERIES.md](SERIES.md)
 

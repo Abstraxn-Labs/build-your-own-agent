@@ -59,6 +59,14 @@ export const TOOL_SETS = {
     'transfer',
     'data_and_analytics',
   ] as const,
+  /** Transfers gated by KYI Warrant (`@abstraxn/warrant`) before MCP runs. */
+  warrantGated: [
+    'get_balance',
+    'get_wallet_address',
+    'get_transaction_status',
+    'get_gas_info',
+    'transfer',
+  ] as const,
   swiggyFoodOrdering: [
     'swiggy_get_addresses',
     'swiggy_search_restaurants',
