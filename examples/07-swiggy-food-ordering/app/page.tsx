@@ -2,8 +2,33 @@
 
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport, type UIMessage } from 'ai';
-import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
+import { DraftCartChrome } from '@/components/draft-cart-chrome';
 import { agentMeta } from '@/lib/agent';
+import { DraftCartProvider, useDraftCart } from '@/lib/draft-cart';
+import {
+  displayAssistantText,
+  displayUserText,
+  latestPendingPayment,
+  messageHasCardFeed,
+  ToolResultPanels,
+} from '@/lib/tool-panels';
+
+const CAPABILITY_LABELS: Record<string, string> = {
+  swiggy_get_addresses: 'Saved delivery addresses',
+  swiggy_search_restaurants: 'Search nearby restaurants',
+  swiggy_get_menu: 'Browse full menus',
+  swiggy_search_menu: 'Find dishes by name',
+  swiggy_manage_cart: 'Build and review cart',
+  swiggy_get_payment_options: 'Choose how to pay',
+  swiggy_place_order: 'Place order with UPI QR',
+  swiggy_check_payment_status: 'Confirm payment status',
+  swiggy_get_order_status: 'Track an active order',
+  swiggy_get_order_history: 'Past order history',
+  swiggy_get_order_details: 'Order details',
+  swiggy_fetch_coupons: 'Discover coupons',
+  swiggy_apply_coupon: 'Apply a coupon',
+};
 
 function messageText(message: UIMessage): string {
   return message.parts
@@ -12,20 +37,66 @@ function messageText(message: UIMessage): string {
     .join('');
 }
 
-function toolNames(message: UIMessage): string[] {
-  return message.parts
-    .filter((part) => part.type.startsWith('tool-') || part.type === 'dynamic-tool')
-    .map((part) => ('toolName' in part ? String(part.toolName) : part.type));
+function PaymentSidebarCard({ data }: { data: Record<string, unknown> }) {
+  const paymentUrl =
+    typeof data.paymentUrl === 'string'
+      ? data.paymentUrl
+      : typeof data.payment_url === 'string'
+        ? data.payment_url
+        : undefined;
+  const paymentQrImage =
+    typeof data.paymentQrImage === 'string' ? data.paymentQrImage : undefined;
+  const paymentQrPayload =
+    typeof data.paymentQrPayload === 'string' ? data.paymentQrPayload : undefined;
+  const qrData = paymentQrPayload || paymentUrl;
+  const img =
+    paymentQrImage &&
+    (paymentQrImage.startsWith('data:image/') || /^https?:\/\//i.test(paymentQrImage))
+      ? paymentQrImage
+      : qrData
+        ? `https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=8&data=${encodeURIComponent(qrData)}`
+        : null;
+
+  return (
+    <div className="pay-card">
+      <div className="pay-card-title">Pay with UPI</div>
+      <p className="pay-card-copy">
+        Scan the QR or open the link, then type &quot;I&apos;ve paid&quot; in chat.
+      </p>
+      {img ? (
+        <div className="pay-card-qr-wrap">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={img}
+            alt="UPI QR"
+            width={200}
+            height={200}
+            className="pay-card-qr"
+          />
+        </div>
+      ) : (
+        <p className="pay-card-wait">Waiting for QR from Swiggy…</p>
+      )}
+      {paymentUrl ? (
+        <a href={paymentUrl} target="_blank" rel="noreferrer" className="pay-card-link">
+          Open payment link
+        </a>
+      ) : null}
+    </div>
+  );
 }
 
-export default function HomePage() {
+function HomePageInner() {
   const transport = useMemo(
     () => new DefaultChatTransport({ api: '/api/chat' }),
     [],
   );
   const { messages, sendMessage, status, error } = useChat({ transport });
   const [input, setInput] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const isLoading = status === 'submitted' || status === 'streaming';
+  const pendingPayment = useMemo(() => latestPendingPayment(messages), [messages]);
+  const draftCart = useDraftCart();
 
   const [swiggyConnected, setSwiggyConnected] = useState<boolean | null>(null);
   const [swiggyError, setSwiggyError] = useState<string | null>(null);
@@ -44,6 +115,10 @@ export default function HomePage() {
       .catch(() => setSwiggyConnected(false));
   }, []);
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }, [messages, status, error, draftCart.itemCount]);
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const text = input.trim();
@@ -53,205 +128,159 @@ export default function HomePage() {
   };
 
   return (
-    <main
-      style={{
-        maxWidth: 960,
-        margin: '0 auto',
-        padding: '32px 20px 48px',
-        display: 'grid',
-        gap: 20,
-      }}
-    >
-      <header style={{ display: 'grid', gap: 8 }}>
-        <p
-          style={{
-            margin: 0,
-            color: 'var(--muted)',
-            fontSize: 13,
-            letterSpacing: '0.04em',
-            textTransform: 'uppercase',
-          }}
-        >
-          Build your Agent with Abstraxn
-        </p>
-        <h1 style={{ margin: 0, fontSize: 32, fontWeight: 700 }}>{agentMeta.title}</h1>
-        <p style={{ margin: 0, color: 'var(--muted)', lineHeight: 1.5 }}>
-          {agentMeta.subtitle}
-        </p>
+    <main className="app-shell">
+      <header className="app-header">
+        <p className="app-eyebrow">Abstraxn Agent</p>
+        <h1 className="app-title">{agentMeta.title}</h1>
+        <p className="app-subtitle">{agentMeta.subtitle}</p>
       </header>
 
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
-          background: 'var(--panel)',
-          border: '1px solid var(--border)',
-          borderRadius: 10,
-          padding: '10px 14px',
-          fontSize: 13,
-        }}
-      >
-        <span style={{ color: swiggyConnected ? 'var(--ok)' : 'var(--muted)' }}>
+      <div className="swiggy-status">
+        <span>
+          <span
+            className={`swiggy-status-dot ${
+              swiggyConnected ? 'ok' : swiggyConnected === null ? '' : 'warn'
+            }`}
+          />
           {swiggyConnected === null
             ? 'Checking Swiggy connection…'
             : swiggyConnected
-              ? '✅ Swiggy account connected'
+              ? 'Swiggy account connected'
               : swiggyError
-                ? `⚠️ Swiggy connection failed (${swiggyError}) — try again`
-                : 'Swiggy account not connected — tools will return an error until you connect.'}
+                ? `Connection failed (${swiggyError}) — try again`
+                : 'Connect Swiggy to start ordering'}
         </span>
         {!swiggyConnected && (
-          <a
-            href="/api/swiggy/auth/start"
-            style={{
-              background: 'var(--accent)',
-              color: '#fff',
-              borderRadius: 8,
-              padding: '6px 12px',
-              fontWeight: 600,
-              textDecoration: 'none',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            Connect Swiggy Account
+          <a href="/api/swiggy/auth/start" className="swiggy-connect-btn">
+            Connect Swiggy
           </a>
         )}
       </div>
 
-      <section
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'minmax(0, 1fr) 280px',
-          gap: 16,
-        }}
-        className="layout"
-      >
-        <div
-          style={{
-            background: 'var(--panel)',
-            border: '1px solid var(--border)',
-            borderRadius: 12,
-            minHeight: 480,
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          <div style={{ flex: 1, overflow: 'auto', padding: 16, display: 'grid', gap: 12 }}>
+      <section className="layout">
+        <div className="chat-panel">
+          <div className="chat-scroll">
             {messages.length === 0 && (
-              <p style={{ color: 'var(--muted)', margin: 0 }}>
-                Try: &quot;Find a highly-rated biryani place near me and show me the menu.&quot;
-              </p>
-            )}
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                style={{
-                  background: message.role === 'user' ? 'var(--user)' : 'var(--assistant)',
-                  border: '1px solid var(--border)',
-                  borderRadius: 10,
-                  padding: '10px 12px',
-                  whiteSpace: 'pre-wrap',
-                  lineHeight: 1.45,
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: 11,
-                    color: 'var(--muted)',
-                    marginBottom: 6,
-                    fontFamily: 'var(--mono)',
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  {message.role}
-                </div>
-                {messageText(message)}
-                {toolNames(message).length ? (
-                  <div style={{ marginTop: 8, fontSize: 12, color: 'var(--ok)' }}>
-                    Tools: {toolNames(message).join(', ')}
-                  </div>
-                ) : null}
+              <div className="chat-empty">
+                <p className="chat-empty-kicker">Ready when you are</p>
+                <h2 className="chat-empty-title">What are you craving?</h2>
+                <p className="chat-empty-copy">
+                  Add several dishes to your draft cart, tap Confirm &amp; show cart,
+                  then pay with UPI — all in this chat.
+                </p>
               </div>
-            ))}
+            )}
+            {messages.map((message) => {
+              const rawText = messageText(message);
+              const isUser = message.role === 'user';
+              const hasCards = !isUser && messageHasCardFeed(message);
+              const text = isUser
+                ? displayUserText(rawText)
+                : displayAssistantText(rawText, hasCards);
+              return (
+                <div key={message.id} className="chat-turn">
+                  {text ? (
+                    <div className={`chat-bubble ${isUser ? 'user' : 'assistant'}`}>
+                      <div className="chat-bubble-role">
+                        {isUser ? 'You' : 'Agent'}
+                      </div>
+                      {text}
+                    </div>
+                  ) : null}
+                  {!isUser ? (
+                    <ToolResultPanels
+                      message={message}
+                      disabled={isLoading}
+                      onPick={(pickText) => {
+                        if (isLoading) return;
+                        void sendMessage({ text: pickText });
+                      }}
+                      onAddToDraft={(item) => {
+                        draftCart.addItem(item);
+                      }}
+                      onSelectAddress={(id, label) => {
+                        draftCart.setAddress(id, label);
+                      }}
+                      onSelectRestaurant={(id, name) => {
+                        draftCart.setRestaurant(id, name);
+                      }}
+                    />
+                  ) : null}
+                </div>
+              );
+            })}
             {error ? (
-              <p style={{ color: 'var(--danger)', margin: 0 }}>{error.message}</p>
+              <p className="chat-soft-error">{error.message}</p>
             ) : null}
+            <div ref={messagesEndRef} />
           </div>
-          <form
-            onSubmit={handleSubmit}
-            style={{
-              display: 'flex',
-              gap: 8,
-              padding: 12,
-              borderTop: '1px solid var(--border)',
+
+          <DraftCartChrome
+            disabled={isLoading}
+            onConfirm={(message) => {
+              if (isLoading) return;
+              void sendMessage({ text: message });
             }}
-          >
+          />
+
+          <form onSubmit={handleSubmit} className="chat-composer">
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask the agent…"
+              placeholder={
+                pendingPayment
+                  ? "After paying, type: I've paid"
+                  : draftCart.itemCount > 0
+                    ? 'Add more dishes, or confirm your cart…'
+                    : 'Ask the agent…'
+              }
               disabled={isLoading}
-              style={{
-                flex: 1,
-                background: 'var(--bg)',
-                border: '1px solid var(--border)',
-                borderRadius: 8,
-                color: 'var(--text)',
-                padding: '10px 12px',
-              }}
+              className="chat-input"
             />
             <button
               type="submit"
               disabled={isLoading || !input.trim()}
-              style={{
-                background: 'var(--accent)',
-                color: '#fff',
-                border: 0,
-                borderRadius: 8,
-                padding: '10px 16px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                opacity: isLoading ? 0.7 : 1,
-              }}
+              className="chat-send"
             >
               {isLoading ? '…' : 'Send'}
             </button>
           </form>
         </div>
 
-        <aside
-          style={{
-            background: 'var(--panel)',
-            border: '1px solid var(--border)',
-            borderRadius: 12,
-            padding: 16,
-            height: 'fit-content',
-          }}
-        >
-          <h2 style={{ margin: '0 0 10px', fontSize: 15 }}>What this agent can do</h2>
-          <ul style={{ margin: 0, paddingLeft: 18, color: 'var(--muted)', lineHeight: 1.6 }}>
+        <aside className="side-panel">
+          {pendingPayment ? <PaymentSidebarCard data={pendingPayment} /> : null}
+          <h2 className="side-heading">How it works</h2>
+          <ol className="side-copy">
+            <li>Choose a delivery address</li>
+            <li>Add multiple dishes to your draft cart</li>
+            <li>Confirm &amp; sync cart, then pay with UPI</li>
+            <li>Type &quot;I&apos;ve paid&quot; after scanning</li>
+          </ol>
+          <h2 className="side-heading">Capabilities</h2>
+          <ul className="side-capabilities">
             {agentMeta.capabilities.map((capability) => (
-              <li key={capability} style={{ fontFamily: 'var(--mono)', fontSize: 12 }}>
-                {capability}
+              <li key={capability}>
+                <span className="side-cap-mark" aria-hidden />
+                {CAPABILITY_LABELS[capability] ?? capability}
               </li>
             ))}
           </ul>
-          <p style={{ margin: '16px 0 0', fontSize: 13, color: 'var(--muted)' }}>
+          <p className="side-docs">
             Docs:{' '}
             <a href={agentMeta.docsUrl} target="_blank" rel="noreferrer">
-              SDK quickstart
+              MCP integration
             </a>
           </p>
         </aside>
       </section>
-
-      <style>{`
-        @media (max-width: 800px) {
-          .layout { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
     </main>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <DraftCartProvider>
+      <HomePageInner />
+    </DraftCartProvider>
   );
 }

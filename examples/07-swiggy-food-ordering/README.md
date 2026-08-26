@@ -39,11 +39,13 @@ cp .env.example .env
 pnpm --filter @abstraxn-examples/swiggy-food-ordering dev
 ```
 
-Open **http://localhost:3005** and click **Connect Swiggy Account**.
+Open **http://localhost:3007** and click **Connect Swiggy Account**.
 
-Try: *Find a highly-rated biryani place near me and show me the menu.* The agent will start by fetching your saved Swiggy delivery addresses and asking which one to use — no need to type a location.
+This example chat UI has **no Swiggy widgets**. Cart totals and UPI QR codes are rendered
+from tool results in the chat (and a sticky QR card in the sidebar when payment is pending).
 
-Both Cash on Delivery and UPI (via a scannable QR/payment link) are supported for checkout.
+Try: *Find a highly-rated biryani place near me and show me the menu.* Confirm the cart in
+chat, choose **UPI**, scan the QR, then type *I've paid*.
 
 ## Customize
 
