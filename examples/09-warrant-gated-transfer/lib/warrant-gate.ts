@@ -51,8 +51,13 @@ export function wrapTransferWithWarrant(
 ): Record<string, Tool> {
   const transfer = tools.transfer;
   if (!transfer || typeof transfer.execute !== 'function') {
+    console.warn(
+      '[warrant] transfer tool missing — Warrant gate NOT active. Tools:',
+      Object.keys(tools),
+    );
     return tools;
   }
+  console.log(`[warrant] gate armed for agent_id=${opts.agentId}`);
 
   const originalExecute = transfer.execute.bind(transfer);
 
@@ -64,6 +69,9 @@ export function wrapTransferWithWarrant(
         const input = (args ?? {}) as Record<string, unknown>;
         const to = String(input.to ?? '');
         const amount = parseAmount(input);
+        console.log(
+          `[warrant] check start agent=${opts.agentId} amount=${amount} to=${to}`,
+        );
         // Demo mandates use USD limits; treat transfer amount as USD for Warrant.
         const decision = await opts.warrant.check({
           agent_id: opts.agentId,
@@ -72,6 +80,9 @@ export function wrapTransferWithWarrant(
           value: { amount, currency: 'USD' },
           counterparty: to ? { id: to, type: 'address' } : null,
         });
+        console.log(
+          `[warrant] check done verdict=${decision.verdict} receipt=${decision.receipt_id} decision=${decision.decision_id}`,
+        );
 
         if (decision.verdict !== 'ALLOW') {
           return JSON.stringify(
@@ -82,7 +93,10 @@ export function wrapTransferWithWarrant(
               receipt_id: decision.receipt_id,
               decision_id: decision.decision_id,
               matched_mandate_ids: decision.matched_mandate_ids,
-              hint: 'Transfer aborted before Agent Kit MCP transfer. Lower the amount or use an allowlisted recipient that matches the sealed mandate.',
+              receipt_generated: true,
+              note:
+                'DENY/ESCALATE still produce a signed Warrant receipt. Always quote receipt_id from this JSON only. Never invent receipt ids.',
+              hint: 'Transfer aborted before Agent Kit MCP transfer. Use an allowlisted recipient or a lower amount that matches the sealed mandate.',
             },
             null,
             2,
