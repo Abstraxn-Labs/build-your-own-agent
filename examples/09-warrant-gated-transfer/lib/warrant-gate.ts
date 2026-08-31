@@ -22,7 +22,7 @@ export function loadWarrantEnv(
   source: Record<string, string | undefined> = process.env,
 ): { apiUrl: string; apiKey: string; agentId?: string } {
   const apiUrl = (
-    source.WARRANT_URL ?? 'https://dev-warrant-api.abstraxn.com'
+    source.WARRANT_URL ?? 'https://api-warrant.abstraxn.com'
   ).replace(/\/$/, '');
   const apiKey = source.WARRANT_MANDATE_API_KEY?.trim();
   if (!apiKey) {

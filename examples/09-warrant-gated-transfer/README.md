@@ -5,11 +5,11 @@ Chat agent built with Abstraxn Agent Kit. Every `transfer` tool call is checked 
 ## Prerequisites
 
 1. Root `.env` with `ABSTRAXN_API_KEY` + LLM keys (same as other examples).
-2. KYI Warrant at `https://dev-warrant-api.abstraxn.com` (or override `WARRANT_URL`).
+2. KYI Warrant at `https://api-warrant.abstraxn.com` (or override `WARRANT_URL`).
 3. Sealed web3 mandate + env:
 
 ```env
-WARRANT_URL=https://dev-warrant-api.abstraxn.com
+WARRANT_URL=https://api-warrant.abstraxn.com
 WARRANT_MANDATE_API_KEY=<mandate.apiKey from wallet POC>
 WARRANT_AGENT_ID=agent_web3_demo
 ```
