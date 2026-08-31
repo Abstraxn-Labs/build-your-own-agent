@@ -9,6 +9,9 @@ catalogs:
     '@abstraxn/agent-kit':
       specifier: ^1.4.1
       version: 1.4.1
+    '@abstraxn/warrant':
+      specifier: ^0.1.0
+      version: 0.1.0
     '@ai-sdk/anthropic':
       specifier: ^4.0.16
       version: 4.0.16
@@ -534,8 +537,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/utils
       '@abstraxn/warrant':
-        specifier: file:../../../abstraxn-sdks/warrant
-        version: file:../abstraxn-sdks/warrant
+        specifier: 'catalog:'
+        version: 0.1.0
       '@ai-sdk/react':
         specifier: 'catalog:'
         version: 4.0.35(react@19.2.7)(zod@4.4.3)
@@ -771,8 +774,9 @@ packages:
   '@abstraxn/server-signer@1.2.2':
     resolution: {integrity: sha512-rUFeIP3kh0jhG7nBKAeW04cUbp1psu7BcULkrTk3iCcS45ap8k1sdAPrE6w9ehznh2wm2hkmjE4vuggut2H8Yw==}
 
-  '@abstraxn/warrant@file:../abstraxn-sdks/warrant':
-    resolution: {directory: ../abstraxn-sdks/warrant, type: directory}
+  '@abstraxn/warrant@0.1.0':
+    resolution: {integrity: sha512-8C8cTyVXQaPTjA63FXliDxxnUSe8rt5n6e0gDJB85cVtkyyxB1V3yqOEd5XOb6AbsdKSIjCZn3a0b/QktEDXOg==}
+    engines: {node: '>=18'}
 
   '@adraffy/ens-normalize@1.11.1':
     resolution: {integrity: sha512-nhCBV3quEgesuf7c7KYfperqSS14T8bYuvJ8PcLJp6znkZpFc0AuW4qBtr8eKVyPPe/8RSr7sglCWPU5eaxwKQ==}
@@ -1219,6 +1223,10 @@ packages:
   caniuse-lite@1.0.30001806:
     resolution: {integrity: sha512-72Cuvd95zbSYPKq6Fhg8eDJRlzgWDf7/mtoZv6Qe/DYNCEBdNxoA3+rZAU2ZhGCpZlns3EssFavaZomckT5Uuw==}
 
+  canonicalize@2.1.0:
+    resolution: {integrity: sha512-F705O3xrsUtgt98j7leetNhTWPe+5S72rlL5O4jA1pKqBVQ/dT1O1D6PFxmSXvc0SUOinWS57DKx0I3CHrXJHQ==}
+    hasBin: true
+
   cbor-js@0.1.0:
     resolution: {integrity: sha512-7sQ/TvDZPl7csT1Sif9G0+MA0I0JOVah8+wWlJVQdVEgIbCzlN/ab3x+uvMNsc34TUvO6osQTAmB2ls80JX6tw==}
 
@@ -1522,7 +1530,10 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@abstraxn/warrant@file:../abstraxn-sdks/warrant': {}
+  '@abstraxn/warrant@0.1.0':
+    dependencies:
+      '@noble/hashes': 1.8.0
+      canonicalize: 2.1.0
 
   '@adraffy/ens-normalize@1.11.1': {}
 
@@ -1991,6 +2002,8 @@ snapshots:
   buffer-equal-constant-time@1.0.1: {}
 
   caniuse-lite@1.0.30001806: {}
+
+  canonicalize@2.1.0: {}
 
   cbor-js@0.1.0: {}
 
