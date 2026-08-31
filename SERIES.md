@@ -12,5 +12,6 @@ Published blogs (abstraxn.com):
 | 03 Tx monitoring | [/blogs/build-tx-monitoring-agent-abstraxn](https://abstraxn.com/blogs/build-tx-monitoring-agent-abstraxn) | [CONTENT.md](../examples/03-tx-monitoring/CONTENT.md) |
 | 04 Fraud policy | [/blogs/build-fraud-policy-agent-abstraxn](https://abstraxn.com/blogs/build-fraud-policy-agent-abstraxn) | [CONTENT.md](../examples/04-fraud-policy/CONTENT.md) |
 | 05 Swiggy food ordering | not yet published | [CONTENT.md](../examples/05-swiggy-food-ordering/CONTENT.md) |
+| 09 Warrant-gated transfer | not yet published | [CONTENT.md](../examples/09-warrant-gated-transfer/CONTENT.md) |
 
 LinkedIn posts and videos are drafted in each `CONTENT.md` — publish from those scripts the same week the example merges.

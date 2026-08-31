@@ -519,6 +519,55 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
 
+  examples/09-warrant-gated-transfer:
+    dependencies:
+      '@abstraxn-examples/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@abstraxn-examples/llm':
+        specifier: workspace:*
+        version: link:../../packages/llm
+      '@abstraxn-examples/mcp':
+        specifier: workspace:*
+        version: link:../../packages/mcp
+      '@abstraxn-examples/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
+      '@abstraxn/warrant':
+        specifier: file:../../../abstraxn-sdks/warrant
+        version: file:../abstraxn-sdks/warrant
+      '@ai-sdk/react':
+        specifier: 'catalog:'
+        version: 4.0.35(react@19.2.7)(zod@4.4.3)
+      ai:
+        specifier: 'catalog:'
+        version: 7.0.32(zod@4.4.3)
+      next:
+        specifier: 'catalog:'
+        version: 16.2.10(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      react:
+        specifier: 'catalog:'
+        version: 19.2.7
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.2.7(react@19.2.7)
+      zod:
+        specifier: 'catalog:'
+        version: 4.4.3
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.20.1
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.17
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.2.3(@types/react@19.2.17)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
   packages/core:
     dependencies:
       '@abstraxn-examples/utils':
@@ -721,6 +770,9 @@ packages:
 
   '@abstraxn/server-signer@1.2.2':
     resolution: {integrity: sha512-rUFeIP3kh0jhG7nBKAeW04cUbp1psu7BcULkrTk3iCcS45ap8k1sdAPrE6w9ehznh2wm2hkmjE4vuggut2H8Yw==}
+
+  '@abstraxn/warrant@file:../abstraxn-sdks/warrant':
+    resolution: {directory: ../abstraxn-sdks/warrant, type: directory}
 
   '@adraffy/ens-normalize@1.11.1':
     resolution: {integrity: sha512-nhCBV3quEgesuf7c7KYfperqSS14T8bYuvJ8PcLJp6znkZpFc0AuW4qBtr8eKVyPPe/8RSr7sglCWPU5eaxwKQ==}
@@ -1469,6 +1521,8 @@ snapshots:
       - typescript
       - utf-8-validate
       - zod
+
+  '@abstraxn/warrant@file:../abstraxn-sdks/warrant': {}
 
   '@adraffy/ens-normalize@1.11.1': {}
 
