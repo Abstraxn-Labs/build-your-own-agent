@@ -126,11 +126,23 @@ function jsonSchemaToZod(
     let field: z.ZodTypeAny;
     switch (prop.type) {
       case 'string':
-        field = z.string();
+        // MCP schemas often mark IDs as strings; models frequently pass numbers.
+        field = z.preprocess(
+          (value) =>
+            typeof value === 'number' || typeof value === 'boolean'
+              ? String(value)
+              : value,
+          z.string(),
+        );
         break;
       case 'number':
       case 'integer':
-        field = z.number();
+        field = z.preprocess((value) => {
+          if (typeof value === 'string' && value.trim() !== '' && !Number.isNaN(Number(value))) {
+            return Number(value);
+          }
+          return value;
+        }, z.number());
         break;
       case 'boolean':
         field = z.boolean();
@@ -144,7 +156,12 @@ function jsonSchemaToZod(
     if (typeof prop.description === 'string') {
       field = field.describe(prop.description);
     }
-    shape[key] = required.has(key) ? field : field.optional();
+    // Auth tokens are injected server-side by examples (e.g. Swiggy OAuth wrap).
+    // Keep them optional in the model-facing schema so validation doesn't fail
+    // before injection when the LLM omits them.
+    const injectServerSide = key === 'access_token' || key === 'refresh_token';
+    shape[key] =
+      required.has(key) && !injectServerSide ? field : field.optional();
   }
 
   return z.object(shape).passthrough();

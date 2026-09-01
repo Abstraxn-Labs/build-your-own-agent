@@ -16,11 +16,13 @@
     "@abstraxn-examples/mcp": "workspace:*",
     "@abstraxn-examples/utils": "workspace:*",
     "@abstraxn-examples/wallet": "workspace:*",
+    "@abstraxn/warrant": "catalog:",
     "@ai-sdk/react": "catalog:",
     "ai": "catalog:",
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "viem": "^2.51.3",
     "zod": "catalog:"
   },
   "devDependencies": {

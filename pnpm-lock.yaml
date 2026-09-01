@@ -432,6 +432,9 @@ importers:
       '@abstraxn-examples/wallet':
         specifier: workspace:*
         version: link:../../packages/wallet
+      '@abstraxn/warrant':
+        specifier: 'catalog:'
+        version: 0.1.0
       '@ai-sdk/react':
         specifier: 'catalog:'
         version: 4.0.35(react@19.2.7)(zod@4.4.3)
@@ -447,6 +450,9 @@ importers:
       react-dom:
         specifier: 'catalog:'
         version: 19.2.7(react@19.2.7)
+      viem:
+        specifier: ^2.51.3
+        version: 2.55.4(typescript@5.9.3)(zod@4.4.3)
       zod:
         specifier: 'catalog:'
         version: 4.4.3

@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
     '@abstraxn-examples/llm',
     '@abstraxn-examples/utils',
   ],
+  serverExternalPackages: ['viem', '@abstraxn/warrant'],
 };
 
 export default nextConfig;
