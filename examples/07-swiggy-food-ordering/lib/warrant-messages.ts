@@ -11,8 +11,27 @@ export type WarrantDenyPayload = {
   checked_amount?: number;
   checked_currency?: string;
   checked_restaurant_id?: string | null;
+  receipt_id?: string | null;
+  decision_id?: string | null;
+  matched_mandate_ids?: string[];
   hint?: string;
 };
+
+/** Map Warrant SDK reasons (detail may be unknown) into UI-safe strings. */
+export function normalizeWarrantReasons(
+  reasons: Array<{ code: string; layer: string; detail?: unknown }> | undefined,
+): WarrantDenyReason[] {
+  return (reasons ?? []).map((r) => ({
+    code: r.code,
+    layer: r.layer,
+    detail:
+      typeof r.detail === 'string'
+        ? r.detail
+        : r.detail != null
+          ? JSON.stringify(r.detail)
+          : undefined,
+  }));
+}
 
 function normalizeReasonCodes(reasons: WarrantDenyReason[] | undefined): string[] {
   return (reasons ?? [])

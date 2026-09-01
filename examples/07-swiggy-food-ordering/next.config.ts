@@ -10,8 +10,9 @@ const nextConfig: NextConfig = {
     '@abstraxn-examples/wallet',
     '@abstraxn-examples/llm',
     '@abstraxn-examples/utils',
+    '@abstraxn/warrant',
   ],
-  serverExternalPackages: ['viem', '@abstraxn/warrant'],
+  serverExternalPackages: ['viem'],
 };
 
 export default nextConfig;
