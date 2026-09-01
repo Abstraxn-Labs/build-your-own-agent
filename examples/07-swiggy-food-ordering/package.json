@@ -16,7 +16,7 @@
     "@abstraxn-examples/mcp": "workspace:*",
     "@abstraxn-examples/utils": "workspace:*",
     "@abstraxn-examples/wallet": "workspace:*",
-    "@abstraxn/warrant": "file:../../../abstraxn-sdks/warrant",
+    "@abstraxn/warrant": "catalog:",
     "@ai-sdk/react": "catalog:",
     "ai": "catalog:",
     "next": "catalog:",
