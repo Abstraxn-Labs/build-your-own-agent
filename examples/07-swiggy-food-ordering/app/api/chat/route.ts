@@ -31,5 +31,17 @@ export async function POST(req: Request) {
     extraTools: swiggyTools,
   });
 
-  return result.toUIMessageStreamResponse();
+  return result.toUIMessageStreamResponse({
+    onError: (error) => {
+      console.error('[swiggy/api/chat]', error);
+      const raw = error instanceof Error ? error.message : String(error);
+      if (/key limit exceeded/i.test(raw)) {
+        return 'OpenRouter API key limit exceeded. Top up or rotate LLM_API_KEY in .env, then try again.';
+      }
+      if (/rate limit/i.test(raw)) {
+        return 'LLM rate limit hit. Wait a moment and try again.';
+      }
+      return raw || 'An error occurred.';
+    },
+  });
 }

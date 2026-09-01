@@ -1,12 +1,39 @@
 import type { McpClient } from '@abstraxn/agent-kit';
 import { mcpToolsToAiSdk, resolveToolNames } from '@abstraxn-examples/mcp';
+import { Warrant } from '@abstraxn/warrant';
 import type { Tool, ToolSet } from 'ai';
 import { getValidAccessToken } from './swiggy-oauth';
-import { placeSwiggyFoodOrderDirect } from './swiggy-mcp-direct';
+import {
+  callSwiggyFoodTool,
+  placeSwiggyFoodOrderDirect,
+} from './swiggy-mcp-direct';
+import { resolveMandateForCheck } from './warrant-policy';
+import { warrantDenyPayloadWithUserMessage } from './warrant-messages';
 
 export interface SwiggyTokens {
   accessToken?: string;
   refreshToken?: string;
+}
+
+/** Last priced cart seen from manage_cart — used when place_order omits amount (example 09 always has amount in tool args). */
+type CartSnapshot = {
+  amount: number;
+  restaurantId?: string;
+  items?: Array<{ name: string; category?: string }>;
+  updatedAt: string;
+};
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __swiggyLastCartSnapshot: CartSnapshot | undefined;
+}
+
+function getCartSnapshot(): CartSnapshot | null {
+  return globalThis.__swiggyLastCartSnapshot ?? null;
+}
+
+function setCartSnapshot(snapshot: CartSnapshot | null): void {
+  globalThis.__swiggyLastCartSnapshot = snapshot ?? undefined;
 }
 
 
@@ -32,6 +59,202 @@ async function resolveSwiggyTokens(): Promise<SwiggyTokens> {
     };
   }
   return loadSwiggyTokensFromEnv();
+}
+
+function parseAmountFromArgs(args: Record<string, unknown>): number {
+  const amountLike =
+    args.totalAmount ??
+    args.amount ??
+    args.orderTotal ??
+    args.billTotal ??
+    args.toPay ??
+    args.grandTotal ??
+    (args.value && typeof args.value === 'object' && !Array.isArray(args.value)
+      ? (args.value as Record<string, unknown>).amount
+      : undefined);
+  if (typeof amountLike === 'number' && Number.isFinite(amountLike)) return amountLike;
+  if (typeof amountLike === 'string') {
+    const m = amountLike.replace(/,/g, '').match(/(\d+(?:\.\d+)?)/);
+    if (m) return Number(m[1]);
+  }
+  return 0;
+}
+
+function extractRupeeAmount(text: string): number {
+  const patterns = [
+    /to\s*pay[^₹\d]*₹\s*([\d,.]+)/i,
+    /grand\s*total[^₹\d]*₹\s*([\d,.]+)/i,
+    /bill\s*total[^₹\d]*₹\s*([\d,.]+)/i,
+    /total[^₹\d]*₹\s*([\d,.]+)/i,
+    /₹\s*([\d,.]+)/,
+  ];
+  for (const re of patterns) {
+    const m = text.match(re);
+    if (!m?.[1]) continue;
+    const n = Number(m[1].replace(/,/g, ''));
+    if (Number.isFinite(n) && n > 0) return n;
+  }
+  return 0;
+}
+
+function parseItemsFromArgs(
+  args: Record<string, unknown>,
+): Array<{ name: string; category?: string }> | null {
+  const raw = args.items ?? args.cartItems ?? args.cart_items;
+  if (!Array.isArray(raw) || raw.length === 0) return null;
+  const items: Array<{ name: string; category?: string }> = [];
+  for (const entry of raw) {
+    if (!entry || typeof entry !== 'object') continue;
+    const row = entry as Record<string, unknown>;
+    const name =
+      (typeof row.name === 'string' && row.name) ||
+      (typeof row.itemName === 'string' && row.itemName) ||
+      (typeof row.title === 'string' && row.title) ||
+      '';
+    if (!name) continue;
+    const categoryRaw =
+      row.category ?? row.itemCategory ?? row.foodType ?? row.vegClassifier;
+    const category =
+      typeof categoryRaw === 'string' && categoryRaw.trim()
+        ? categoryRaw.trim().toLowerCase().replace(/\s+/g, '_')
+        : undefined;
+    items.push(category ? { name, category } : { name });
+  }
+  return items.length ? items : null;
+}
+
+type WarrantGateResult =
+  | { kind: 'skip' }
+  | {
+      kind: 'allow';
+      decision: { receipt_id: string; decision_id: string; verdict: string };
+    }
+  | { kind: 'deny'; payload: Record<string, unknown> };
+
+async function hydrateCartSnapshotForCheck(params: {
+  accessToken?: string;
+  addressId?: string;
+  viewCart?: (addressId: string) => Promise<unknown>;
+}): Promise<void> {
+  if ((getCartSnapshot()?.amount ?? 0) > 0) return;
+  const addressId = params.addressId;
+  if (!addressId) return;
+  try {
+    let raw: unknown;
+    if (params.viewCart) {
+      raw = await params.viewCart(addressId);
+    } else if (params.accessToken) {
+      for (const toolName of ['manage_food_cart', 'update_food_cart', 'get_food_cart'] as const) {
+        try {
+          raw = await callSwiggyFoodTool(
+            toolName,
+            { action: 'view', addressId },
+            params.accessToken,
+          );
+          break;
+        } catch {
+          raw = undefined;
+        }
+      }
+    }
+    if (raw != null) {
+      normalizeManageCartResult(raw, { action: 'view', addressId });
+    }
+  } catch {
+    // ignore
+  }
+}
+
+/** Warrant.check() before place_order; never send amount=0 (that falsely ALLOWs max-₹N mandates). */
+async function runWarrantCheckForPlaceOrder(
+  args: Record<string, unknown>,
+  opts?: {
+    accessToken?: string;
+    viewCart?: (addressId: string) => Promise<unknown>;
+  },
+): Promise<WarrantGateResult> {
+  const mandate = resolveMandateForCheck();
+  if (!mandate) return { kind: 'skip' };
+
+  let amount = parseAmountFromArgs(args);
+  if (!(amount > 0)) {
+    await hydrateCartSnapshotForCheck({
+      accessToken: opts?.accessToken,
+      addressId: typeof args.addressId === 'string' ? args.addressId : undefined,
+      viewCart: opts?.viewCart,
+    });
+  }
+  const snapshot = getCartSnapshot();
+  if (!(amount > 0) && snapshot?.amount) amount = snapshot.amount;
+
+  const restaurant =
+    (typeof args.restaurantId === 'string' && args.restaurantId) ||
+    snapshot?.restaurantId ||
+    '';
+  const items = parseItemsFromArgs(args) ?? snapshot?.items ?? null;
+
+  if (!(amount > 0)) {
+    return {
+      kind: 'deny',
+      payload: warrantDenyPayloadWithUserMessage({
+        blocked_by: 'kyi_warrant',
+        verdict: 'DENY',
+        reasons: [
+          {
+            code: 'AMOUNT_missing',
+            layer: 'host',
+            detail:
+              'place_order must include totalAmount (or a priced cart must exist). Refusing check with amount=0.',
+          },
+        ],
+        receipt_id: null,
+        decision_id: null,
+        matched_mandate_ids: [],
+        checked_amount: 0,
+      }),
+    };
+  }
+
+  const warrant = new Warrant({
+    apiUrl: mandate.apiUrl,
+    apiKey: mandate.apiKey,
+    onError: 'deny',
+  });
+
+  const decision = await warrant.check({
+    agent_id: mandate.agentId,
+    domain: mandate.domain,
+    action_type: 'place_order',
+    value: { amount, currency: 'INR' },
+    counterparty: restaurant ? { id: restaurant, type: 'restaurant' } : null,
+    items,
+  });
+
+  if (decision.verdict === 'ALLOW') {
+    return {
+      kind: 'allow',
+      decision: {
+        verdict: decision.verdict,
+        receipt_id: decision.receipt_id,
+        decision_id: decision.decision_id,
+      },
+    };
+  }
+
+  return {
+    kind: 'deny',
+    payload: warrantDenyPayloadWithUserMessage({
+      blocked_by: 'kyi_warrant',
+      verdict: decision.verdict,
+      reasons: decision.reasons,
+      receipt_id: decision.receipt_id,
+      decision_id: decision.decision_id,
+      matched_mandate_ids: decision.matched_mandate_ids,
+      checked_amount: amount,
+      checked_currency: 'INR',
+      checked_restaurant_id: restaurant || null,
+    }),
+  };
 }
 
 const STRING_ID_KEYS = [
@@ -173,6 +396,25 @@ function normalizeManageCartResult(
         ? 'Cart is STILL EMPTY after add/update — the item was NOT added. Likely missing variants/variantsV2/addons from swiggy_search_menu, or wrong menu_item_id/restaurantId/addressId. Retry with the correct variant fields. Never mention a cart widget; this UI has none.'
         : 'Cart is empty. Call swiggy_manage_cart with action "add", addressId, restaurantId, and cartItems (include variants/variantsV2 when the menu item requires a size). Never mention a cart widget; this UI has none.',
     };
+  }
+
+  // Cache priced cart for Warrant.check (place_order often omits totalAmount).
+  const amountFromArgs = parseAmountFromArgs(args);
+  const amountFromText = extractRupeeAmount(raw);
+  const amount = amountFromArgs > 0 ? amountFromArgs : amountFromText;
+  if (amount > 0) {
+    setCartSnapshot({
+      amount,
+      restaurantId:
+        typeof args.restaurantId === 'string' ? args.restaurantId : getCartSnapshot()?.restaurantId,
+      items: parseItemsFromArgs(args) ?? getCartSnapshot()?.items,
+      updatedAt: new Date().toISOString(),
+    });
+  } else if (typeof args.restaurantId === 'string' && args.restaurantId) {
+    const prev = getCartSnapshot();
+    if (prev) {
+      setCartSnapshot({ ...prev, restaurantId: args.restaurantId });
+    }
   }
 
   if (typeof result === 'string') {
@@ -429,6 +671,34 @@ export async function createSwiggyTools(
             }
           }
           let result: unknown;
+          let warrantAllow:
+            | { receipt_id: string; decision_id: string; verdict: string }
+            | undefined;
+          if (name.includes('place_order') && normalized.confirm === true) {
+            const manage = Object.entries(tools).find(([n]) =>
+              n.includes('manage_cart'),
+            )?.[1] as
+              | (Tool & { execute?: (a: Record<string, unknown>) => Promise<unknown> })
+              | undefined;
+            const gate = await runWarrantCheckForPlaceOrder(normalized, {
+              accessToken: resolvedTokens.accessToken,
+              viewCart: manage?.execute
+                ? async (addressId) =>
+                    manage.execute!({
+                      action: 'view',
+                      addressId,
+                      access_token: resolvedTokens.accessToken,
+                      refresh_token: resolvedTokens.refreshToken,
+                    })
+                : undefined,
+            });
+            if (gate.kind === 'deny') {
+              return gate.payload;
+            }
+            if (gate.kind === 'allow') {
+              warrantAllow = gate.decision;
+            }
+          }
           if (
             name.includes('place_order') &&
             normalized.confirm === true &&
@@ -479,6 +749,22 @@ export async function createSwiggyTools(
           }
           if (name.includes('place_order') || name.includes('check_payment')) {
             const normalizedResult = normalizePlaceOrderResult(result);
+            // Match example 09: surface ALLOW receipt on the successful tool result.
+            if (
+              warrantAllow &&
+              normalizedResult &&
+              typeof normalizedResult === 'object' &&
+              !Array.isArray(normalizedResult)
+            ) {
+              return {
+                ...(normalizedResult as Record<string, unknown>),
+                warrant: {
+                  verdict: warrantAllow.verdict,
+                  receipt_id: warrantAllow.receipt_id,
+                  decision_id: warrantAllow.decision_id,
+                },
+              };
+            }
             return normalizedResult;
           }
           return result;

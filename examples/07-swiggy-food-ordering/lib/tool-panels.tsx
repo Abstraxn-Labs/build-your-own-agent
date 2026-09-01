@@ -2,6 +2,11 @@
 
 import { useState, type ReactNode } from 'react';
 import type { UIMessage } from 'ai';
+import {
+  formatWarrantDenyUserMessage,
+  type WarrantDenyPayload,
+} from './warrant-messages';
+import { sizeChoicesForItem } from './draft-cart';
 
 type JsonRecord = Record<string, unknown>;
 
@@ -123,20 +128,40 @@ function extractSizeOptions(row: JsonRecord): string[] {
   const pushName = (value: unknown) => {
     if (typeof value === 'string' && value.trim()) {
       const cleaned = value.replace(/\(.*?\)/g, '').trim();
-      if (cleaned && !names.includes(cleaned)) names.push(cleaned);
+      if (!cleaned || names.includes(cleaned)) return;
+      // Prefer size-like labels; skip addon/group headers.
+      if (isMenuSectionHeader(cleaned)) return;
+      if (
+        !/\d/.test(cleaned) &&
+        !/(piece|pc|serve|small|medium|large|half|full|regular)/i.test(cleaned)
+      ) {
+        // Still keep short option labels like "Small"
+        if (cleaned.length > 24) return;
+      }
+      names.push(cleaned);
     }
   };
 
   const walk = (value: unknown, depth = 0) => {
-    if (depth > 4 || value == null) return;
+    if (depth > 5 || value == null) return;
     if (Array.isArray(value)) {
       for (const item of value) walk(item, depth + 1);
       return;
     }
     const rec = asRecord(value);
     if (!rec) return;
-    pushName(rec.name ?? rec.label ?? rec.variantName ?? rec.size);
-    for (const key of ['variants', 'variations', 'variantsV2', 'options', 'choices', 'items']) {
+    pushName(rec.name ?? rec.label ?? rec.variantName ?? rec.size ?? rec.quantity);
+    for (const key of [
+      'variants',
+      'variations',
+      'variantsV2',
+      'variantGroups',
+      'variant_groups',
+      'options',
+      'choices',
+      'items',
+      'groups',
+    ]) {
       if (key in rec) walk(rec[key], depth + 1);
     }
   };
@@ -145,7 +170,116 @@ function extractSizeOptions(row: JsonRecord): string[] {
   walk(row.variations);
   walk(row.variantsV2);
   walk(row.variantGroups);
-  return names.slice(0, 6);
+  walk(row.variant_groups);
+
+  // Also pull sizes embedded in description / tags text.
+  const blob = firstString(row, [
+    'tags',
+    'description',
+    'variantLabel',
+    'variantsLabel',
+    'variantsText',
+  ]);
+  for (const part of sizesFromTags(blob)) {
+    if (!names.includes(part)) names.push(part);
+  }
+
+  return names.slice(0, 8);
+}
+
+/** Variant/addon group headers from Swiggy — not real dishes. */
+function isMenuSectionHeader(name: string): boolean {
+  const n = name.trim();
+  if (!n) return true;
+  return /^(variants?|addons?|add[\s-]?ons?|customis(?:e|ation)s?|options?)\b/i.test(n);
+}
+
+type MenuRow = {
+  name: string;
+  price?: string;
+  tags?: string;
+  imageUrl?: string;
+  restaurant?: string;
+  menuItemId?: string;
+  restaurantId?: string;
+  sizeOptions?: string[];
+};
+
+function dedupeMenuRows(rows: MenuRow[]): MenuRow[] {
+  const seen = new Set<string>();
+  const out: MenuRow[] = [];
+  for (const row of rows) {
+    if (isMenuSectionHeader(row.name)) continue;
+    const key = (row.menuItemId || row.name).toLowerCase().trim();
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push(row);
+  }
+  return out;
+}
+
+function parseMenuRowsFromData(data: JsonRecord | null, text: string): MenuRow[] {
+  let rows: MenuRow[] = [];
+  if (data) {
+    const list = findArray(data, [
+      'items',
+      'menuItems',
+      'results',
+      'dishes',
+      'menu',
+      'categories',
+      'data',
+    ]);
+    const flattened: JsonRecord[] = [];
+    for (const row of list) {
+      const nested = asArray(row.items);
+      if (nested.length) {
+        for (const item of nested) {
+          const rec = asRecord(item);
+          if (rec) flattened.push(rec);
+        }
+      } else {
+        flattened.push(row);
+      }
+    }
+    rows = flattened.map((row) => {
+      const rawTags =
+        firstString(row, ['tags', 'description', 'variantLabel', 'variantsLabel']) ||
+        [
+          row.isVeg === true || row.veg === true ? 'Veg' : null,
+          row.isBestseller || row.bestseller ? 'Bestseller' : null,
+          formatVariantSizes(row),
+        ]
+          .filter(Boolean)
+          .join(' · ') ||
+        undefined;
+      return {
+        name:
+          stripInternalIds(
+            firstString(row, ['name', 'itemName', 'menu_item_name', 'title', 'dishName']) ||
+              'Item',
+          ) || 'Item',
+        price: money(row.price) || money(row.finalPrice) || firstString(row, ['price']),
+        tags: rawTags ? humanizeMenuTags(rawTags) : undefined,
+        imageUrl: resolveImageUrl(
+          firstString(row, [
+            'image',
+            'imageUrl',
+            'image_url',
+            'cloudinaryImageId',
+            'img',
+            'thumbnail',
+          ]),
+        ),
+        restaurant: firstString(row, ['restaurantName', 'restaurant_name', 'restaurant']),
+        menuItemId: firstString(row, ['menu_item_id', 'menuItemId', 'id', 'itemId']),
+        restaurantId: firstString(row, ['restaurantId', 'restaurant_id']),
+        sizeOptions: extractSizeOptions(row),
+      };
+    });
+  }
+  if (!rows.length) rows = parseMenuItemsFromText(text);
+  return dedupeMenuRows(rows);
 }
 
 /** Drop JSON / cart-arg dumps the model sometimes pastes into chat text. */
@@ -489,6 +623,7 @@ export interface WidgetActions {
     menuItemId?: string;
     name: string;
     size?: string;
+    sizeOptions?: string[];
     quantity?: number;
     unitPrice?: number;
     restaurantId?: string;
@@ -498,6 +633,8 @@ export interface WidgetActions {
   onSelectAddress?: (id: string, label: string) => void;
   onSelectRestaurant?: (id: string, name: string) => void;
   disabled?: boolean;
+  /** When true, address cards are from an older get_addresses turn — not clickable. */
+  addressesStale?: boolean;
 }
 
 function SectionLabel({ children }: { children: ReactNode }) {
@@ -723,9 +860,18 @@ function AddressesFeed({
   }
   if (!rows.length) return null;
 
+  const stale = Boolean(actions?.addressesStale);
+  const pickDisabled =
+    stale || actions?.disabled || !(actions?.onPick || actions?.onSelectAddress);
+
   return (
     <div className="chat-feed-block">
-      <SectionLabel>Deliver to</SectionLabel>
+      <SectionLabel>{stale ? 'Earlier addresses (outdated)' : 'Deliver to'}</SectionLabel>
+      {stale ? (
+        <p className="chat-row-sub" style={{ margin: '0 0 8px' }}>
+          Tap a card from the latest address list only — or ask to refresh addresses.
+        </p>
+      ) : null}
       <div className="chat-stack chat-stack-scroll">
         {rows.map((row, index) => {
           const label = stripInternalIds(row.label) || row.label;
@@ -735,8 +881,9 @@ function AddressesFeed({
               key={`${row.id || label}-${index}`}
               type="button"
               className="chat-choice-card"
-              disabled={actions?.disabled || !(actions?.onPick || actions?.onSelectAddress)}
+              disabled={pickDisabled}
               onClick={() => {
+                if (stale) return;
                 if (row.id) actions?.onSelectAddress?.(row.id, label);
                 actions?.onPick?.(
                   row.id
@@ -878,10 +1025,12 @@ function RestaurantsFeed({
 function MenuFeed({
   data,
   text,
+  rows: rowsProp,
   actions,
 }: {
-  data: JsonRecord | null;
-  text: string;
+  data?: JsonRecord | null;
+  text?: string;
+  rows?: MenuRow[];
   actions?: WidgetActions;
 }) {
   const [sizePrompt, setSizePrompt] = useState<{
@@ -894,76 +1043,7 @@ function MenuFeed({
     sizes: string[];
   } | null>(null);
 
-  let rows: Array<{
-    name: string;
-    price?: string;
-    tags?: string;
-    imageUrl?: string;
-    restaurant?: string;
-    menuItemId?: string;
-    restaurantId?: string;
-    sizeOptions?: string[];
-  }> = [];
-
-  if (data) {
-    const list = findArray(data, [
-      'items',
-      'menuItems',
-      'results',
-      'dishes',
-      'menu',
-      'categories',
-      'data',
-    ]);
-    const flattened: JsonRecord[] = [];
-    for (const row of list) {
-      const nested = asArray(row.items);
-      if (nested.length) {
-        for (const item of nested) {
-          const rec = asRecord(item);
-          if (rec) flattened.push(rec);
-        }
-      } else {
-        flattened.push(row);
-      }
-    }
-    rows = flattened.map((row) => {
-      const rawTags =
-        firstString(row, ['tags', 'description', 'variantLabel', 'variantsLabel']) ||
-        [
-          row.isVeg === true || row.veg === true ? 'Veg' : null,
-          row.isBestseller || row.bestseller ? 'Bestseller' : null,
-          formatVariantSizes(row),
-        ]
-          .filter(Boolean)
-          .join(' · ') ||
-        undefined;
-      return {
-        name:
-          stripInternalIds(
-            firstString(row, ['name', 'itemName', 'menu_item_name', 'title', 'dishName']) ||
-              'Item',
-          ) || 'Item',
-        price: money(row.price) || money(row.finalPrice) || firstString(row, ['price']),
-        tags: rawTags ? humanizeMenuTags(rawTags) : undefined,
-        imageUrl: resolveImageUrl(
-          firstString(row, [
-            'image',
-            'imageUrl',
-            'image_url',
-            'cloudinaryImageId',
-            'img',
-            'thumbnail',
-          ]),
-        ),
-        restaurant: firstString(row, ['restaurantName', 'restaurant_name', 'restaurant']),
-        menuItemId: firstString(row, ['menu_item_id', 'menuItemId', 'id', 'itemId']),
-        restaurantId: firstString(row, ['restaurantId', 'restaurant_id']),
-        sizeOptions: extractSizeOptions(row),
-      };
-    });
-  }
-  if (!rows.length) rows = parseMenuItemsFromText(text);
+  const rows = rowsProp ?? parseMenuRowsFromData(data ?? null, text || '');
   if (!rows.length) return null;
 
   const pushDraft = (payload: {
@@ -974,6 +1054,7 @@ function MenuFeed({
     imageUrl?: string;
     unitPrice?: number;
     size?: string;
+    sizeOptions?: string[];
   }) => {
     if (actions?.onAddToDraft) {
       actions.onAddToDraft({
@@ -997,9 +1078,13 @@ function MenuFeed({
       <SectionLabel>Menu picks</SectionLabel>
       <div className="chat-carousel">
         {rows.slice(0, 36).map((row, index) => {
-          const sizes = row.sizeOptions?.length
-            ? row.sizeOptions
-            : sizesFromTags(row.tags);
+          const sizes = sizeChoicesForItem({
+            name: row.name,
+            sizeOptions: row.sizeOptions?.length
+              ? row.sizeOptions
+              : sizesFromTags(row.tags),
+            tags: row.tags,
+          });
           const unitPrice = (() => {
             if (!row.price) return undefined;
             const m = row.price.replace(/,/g, '').match(/(\d+(?:\.\d+)?)/);
@@ -1016,6 +1101,32 @@ function MenuFeed({
               <div className="chat-dish-body">
                 <div className="chat-row-title">{row.name}</div>
                 {row.tags ? <div className="chat-row-sub">{row.tags}</div> : null}
+                {sizes.length > 0 ? (
+                  <div className="chat-size-chips" role="group" aria-label={`Sizes for ${row.name}`}>
+                    {sizes.map((size) => (
+                      <button
+                        key={size}
+                        type="button"
+                        className="chat-size-chip"
+                        disabled={actions?.disabled}
+                        onClick={() => {
+                          pushDraft({
+                            name: row.name,
+                            menuItemId: row.menuItemId,
+                            restaurantId: row.restaurantId,
+                            restaurantName: row.restaurant,
+                            imageUrl: row.imageUrl,
+                            unitPrice,
+                            size,
+                            sizeOptions: sizes,
+                          });
+                        }}
+                      >
+                        {size}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
                 <div className="chat-dish-footer">
                   {row.price ? <div className="chat-price">{row.price}</div> : <span />}
                   {actions?.onAddToDraft || actions?.onPick ? (
@@ -1043,10 +1154,11 @@ function MenuFeed({
                           imageUrl: row.imageUrl,
                           unitPrice,
                           size: sizes[0],
+                          sizeOptions: sizes.length ? sizes : undefined,
                         });
                       }}
                     >
-                      Add
+                      {sizes.length > 1 ? 'Pick size' : 'Add'}
                     </ActionBtn>
                   ) : null}
                 </div>
@@ -1068,7 +1180,11 @@ function MenuFeed({
                   className="chat-btn chat-btn-primary"
                   disabled={actions?.disabled}
                   onClick={() => {
-                    pushDraft({ ...sizePrompt, size });
+                    pushDraft({
+                      ...sizePrompt,
+                      size,
+                      sizeOptions: sizePrompt.sizes,
+                    });
                     setSizePrompt(null);
                   }}
                 >
@@ -1344,11 +1460,11 @@ function CartFeed({
           </div>
           <div className="synced-cart-empty-body">
             <div className="chat-row-title">
-              {fromText.addFailed ? "Couldn't add that item" : 'Cart is empty'}
+              {fromText.addFailed ? "We couldn't update your order" : 'Your order is empty'}
             </div>
             <div className="chat-row-sub">
               {fromText.addFailed
-                ? "This dish needs a size or add-on. Tell me which option you want, then I'll add it."
+                ? 'Some items still need a size or add-on. Tell the agent which options you want, then try again.'
                 : 'Pick a dish from the menu to get started.'}
             </div>
           </div>
@@ -1517,6 +1633,20 @@ function feedForTool(
     return <CartFeed data={data} text={text} />;
   }
   if (tool.toolName.includes('place_order') || tool.toolName.includes('check_payment')) {
+    if (data?.blocked_by === 'kyi_warrant') {
+      const deny = formatWarrantDenyUserMessage(data as WarrantDenyPayload);
+      return (
+        <div className="chat-soft-error warrant-deny-card" key="warrant-deny">
+          <p className="warrant-deny-card__title">{deny.title}</p>
+          <p className="warrant-deny-card__summary">{deny.summary}</p>
+          <ul className="warrant-deny-card__suggestions">
+            {deny.suggestions.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+        </div>
+      );
+    }
     return data ? <PaymentQrFeed data={data} /> : null;
   }
   if (tool.toolName.includes('get_payment_options') && data) {
@@ -1635,6 +1765,7 @@ export function ToolResultPanels({
   onSelectAddress,
   onSelectRestaurant,
   disabled,
+  addressesStale,
 }: {
   message: UIMessage;
   onPick?: (text: string) => void;
@@ -1642,6 +1773,8 @@ export function ToolResultPanels({
   onSelectAddress?: WidgetActions['onSelectAddress'];
   onSelectRestaurant?: WidgetActions['onSelectRestaurant'];
   disabled?: boolean;
+  /** Disable address cards in this message when a newer get_addresses exists. */
+  addressesStale?: boolean;
 }) {
   const tools = toolInvocations(message);
   if (!tools.length) return null;
@@ -1651,17 +1784,38 @@ export function ToolResultPanels({
     onSelectAddress,
     onSelectRestaurant,
     disabled,
+    addressesStale,
   };
 
   const nodes: ReactNode[] = [];
   let renderedUseful = false;
+  /** Merge all search_menu / get_menu results into one carousel (avoids double "Menu picks"). */
+  const menuRows: MenuRow[] = [];
+  let menuKey = 'menu';
 
   for (const tool of tools) {
+    if (tool.toolName.includes('search_menu') || tool.toolName.includes('get_menu')) {
+      menuRows.push(
+        ...parseMenuRowsFromData(asRecord(tool.outputJson), tool.outputText || ''),
+      );
+      menuKey = tool.id;
+      continue;
+    }
     const node = feedForTool(tool, actions);
     if (node) {
       nodes.push(<div key={tool.id}>{node}</div>);
       renderedUseful = true;
     }
+  }
+
+  const uniqueMenu = dedupeMenuRows(menuRows);
+  if (uniqueMenu.length) {
+    nodes.unshift(
+      <div key={`menu-${menuKey}`}>
+        <MenuFeed rows={uniqueMenu} actions={actions} />
+      </div>,
+    );
+    renderedUseful = true;
   }
 
   if (!renderedUseful) {
@@ -1702,6 +1856,87 @@ export function latestPendingPayment(messages: UIMessage[]): JsonRecord | null {
         };
       }
     }
+  }
+  return null;
+}
+
+/** Message id of the most recent successful get_addresses tool output. */
+export function latestAddressesMessageId(messages: UIMessage[]): string | null {
+  for (let i = messages.length - 1; i >= 0; i -= 1) {
+    const message = messages[i];
+    if (!message || message.role === 'user') continue;
+    for (const tool of toolInvocations(message).reverse()) {
+      if (!tool.toolName.includes('get_addresses')) continue;
+      const hasOutput =
+        tool.outputJson != null ||
+        (typeof tool.outputText === 'string' && tool.outputText.trim().length > 8);
+      if (hasOutput) return message.id;
+    }
+  }
+  return null;
+}
+
+/** True when tool text/json looks like Swiggy rejected the addressId. */
+export function isAddressNotFoundPayload(
+  outputJson: unknown,
+  outputText?: string,
+  errorText?: string,
+): boolean {
+  const blob = [
+    typeof outputText === 'string' ? outputText : '',
+    typeof errorText === 'string' ? errorText : '',
+    outputJson != null ? JSON.stringify(outputJson) : '',
+  ]
+    .join(' ')
+    .toLowerCase();
+  if (!blob.trim()) return false;
+  return (
+    /address with id\b/.test(blob) && /not found/.test(blob)
+  ) || /address(?:id)?\b.{0,40}\b(not found|invalid|does not exist|no longer)/i.test(blob);
+}
+
+/**
+ * Scan chat for the latest manage_cart / place_order failure about a bad address.
+ * Returns a stable key so callers can react once per failure.
+ */
+export function latestAddressFailureKey(messages: UIMessage[]): string | null {
+  for (let i = messages.length - 1; i >= 0; i -= 1) {
+    const message = messages[i];
+    if (!message) continue;
+    for (const tool of toolInvocations(message).reverse()) {
+      const name = tool.toolName;
+      if (!name.includes('manage_cart') && !name.includes('place_order')) continue;
+      if (
+        isAddressNotFoundPayload(tool.outputJson, tool.outputText, tool.errorText)
+      ) {
+        return `${message.id}:${tool.id}:address-not-found`;
+      }
+    }
+  }
+  return null;
+}
+
+/** Latest user address card pick: `Use address N: Label (addressId xxx)`. */
+export function latestPickedAddressFromMessages(
+  messages: UIMessage[],
+): { id: string; label: string; messageId: string } | null {
+  for (let i = messages.length - 1; i >= 0; i -= 1) {
+    const message = messages[i];
+    if (!message || message.role !== 'user') continue;
+    const text = message.parts
+      .filter((part): part is { type: 'text'; text: string } => part.type === 'text')
+      .map((part) => part.text)
+      .join('');
+    const idMatch = text.match(/\baddressId\s+([A-Za-z0-9_-]+)/i);
+    if (!idMatch?.[1]) continue;
+    const labelMatch = text.match(
+      /Use address\s+\d+\s*:\s*(.+?)\s*\(\s*addressId/i,
+    );
+    return {
+      id: idMatch[1],
+      label: (labelMatch?.[1] || 'Selected address').trim(),
+      messageId: message.id,
+    };
   }
   return null;
 }
