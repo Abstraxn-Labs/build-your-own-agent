@@ -8,7 +8,7 @@ import {
   placeSwiggyFoodOrderDirect,
 } from './swiggy-mcp-direct';
 import { resolveMandateForCheck } from './warrant-policy';
-import { warrantDenyPayloadWithUserMessage } from './warrant-messages';
+import { warrantDenyPayloadWithUserMessage, normalizeWarrantReasons } from './warrant-messages';
 
 export interface SwiggyTokens {
   accessToken?: string;
@@ -246,7 +246,7 @@ async function runWarrantCheckForPlaceOrder(
     payload: warrantDenyPayloadWithUserMessage({
       blocked_by: 'kyi_warrant',
       verdict: decision.verdict,
-      reasons: decision.reasons,
+      reasons: normalizeWarrantReasons(decision.reasons),
       receipt_id: decision.receipt_id,
       decision_id: decision.decision_id,
       matched_mandate_ids: decision.matched_mandate_ids,
